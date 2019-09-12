@@ -1,0 +1,100 @@
+---
+author:
+title: "EDAV Fall 2019 Probem Set 1"
+output: pdf_document
+---
+
+Read *Graphical Data Analysis with R*, Ch. 3
+
+Grading is based both on your graphs and verbal explanations. Follow all best practices as discussed in class.
+
+The datasets in this assignment are from the **ucidata** package which can be installed from GitHub.  You will first need to install the `devtools` package if you don't have it:
+
+`install.packages("devtools")`  
+
+then,  
+
+`devtools::install_github("coatless/ucidata")`
+
+```{r setup, include=FALSE}
+ # keep this chunk in your .Rmd file
+ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+    
+
+### 1. Abalone 
+
+[18 points]
+
+Choose one of the numeric variables in the `abalone` dataset.  
+
+a) Plot a histogram of the variable. 
+
+b) Plot histograms, faceted by `sex`, for the same variable. 
+
+
+c) Plot multiple boxplots, grouped by `sex` for the same variable. The boxplots should be ordered by decreasing median from left to right.  
+
+
+d) Plot overlapping density curves of the same variable, one curve per factor level of `sex`, on a single set of axes. Each curve should be a different color. 
+
+
+
+e) Summarize the results of b), c) and d): what unique information, *specific to this variable*, is provided by each of the three graphical forms?
+
+
+f) Look at photos of an abalone. Do the measurements in the dataset seem right? What's the issue?
+
+### 2. Hepatitis 
+
+[6 points]
+
+a) Draw two histograms of the age variable in the `hepatitis` dataset in the **ucidata** package, with binwidths of 5 years and `boundary = 0`, one right open and one right closed.  How do they compare?
+
+
+b) Redraw the histogram using the parameters that you consider most appropriate for the data. Explain why you chose the parameters that you chose.
+
+### 3. Glass
+
+[18 points]
+
+a) Use `tidyr::gather()` to convert the numeric columns in the  `glass` dataset in the **ucidata** package to two columns: `variable` and `value`. The first few rows should be:
+
+```
+  variable   value
+1       RI 1.52101
+2       RI 1.51761
+3       RI 1.51618
+4       RI 1.51766
+5       RI 1.51742
+6       RI 1.51596
+```
+
+Use this form to plot histograms of all of the variables in one plot by faceting on `variable`. What patterns do you observe?
+
+
+**For the remaining parts we will consider different methods to test for normality.**
+
+b) Choose one of the variables with a unimodal shape histogram and draw a true normal curve on top on the histogram. How do the two compare?
+
+
+c) Perform the Shapiro-Wilk test for normality of the variable using the `shapiro.test()` function. What do you conclude?
+
+
+
+d) Draw a quantile-quantile (QQ) plot of the variable. Does it appear to be normally distributed?
+
+e) Use the **nullabor** package to create a lineup of histograms in which one panel is the real data and the others are fake data generated from a null hypothesis of normality. Can you pick out the real data? If so, how does the shape of its histogram differ from the others? 
+
+f) Show the lineup to someone else, not in our class (anyone, no background knowledge required). Ask them which plot looks the most different from the others. Did they choose the real data?
+
+g) Briefly summarize your investigations. Did all of the methods produce the same result?
+
+
+### 4. Forest Fires
+
+[8 points]
+
+Using the `forest_fires` dataset in the **ucidata** package, analyze the burned area of the forest by month.  Use whatever graphical forms you deem most appropriate. Describe important trends.
+
+
