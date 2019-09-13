@@ -1,5 +1,5 @@
 ---
-author:
+author: Luke Beasley and Kliment Mamykin
 title: "EDAV Fall 2019 Probem Set 1"
 output: pdf_document
 ---
@@ -20,7 +20,16 @@ then,
  # keep this chunk in your .Rmd file
  knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
-    
+``{r} 
+library(tidyverse)
+library(ggplot2)
+library(devtools)
+devtools::install_github("coatless/ucidata")
+library(ucidata)
+library(ggthemes)
+library(gridExtra)
+
+```    
 
 ### 1. Abalone 
 
@@ -29,30 +38,73 @@ then,
 Choose one of the numeric variables in the `abalone` dataset.  
 
 a) Plot a histogram of the variable. 
-
+```{r}
+print(count(abalone['whole_weight']))
+ggplot(data = abalone, aes(x=whole_weight, y =..density..)) + 
+  geom_histogram(bins = 35, color= "red", fill='blue') + 
+  geom_density(alpha= 0.3, color = 'black', fill='green')+
+  ggtitle("Histogram of Whole Weight variable")
+```
 b) Plot histograms, faceted by `sex`, for the same variable. 
-
+```{r}
+ggplot(data = abalone, aes(x=whole_weight, y =..density..)) + 
+  geom_histogram(bins = 35, color= "red", fill='blue') + 
+  geom_density(alpha= 0.3, color = 'black', fill = 'green')+
+  facet_wrap(~sex)+
+  labs(x = 'Abalone Weight', y = "Density")+
+  ggtitle("Histogram of Whole Weight by sex")
+```
 
 c) Plot multiple boxplots, grouped by `sex` for the same variable. The boxplots should be ordered by decreasing median from left to right.  
-
+```{r}
+ggplot(abalone, aes(x = reorder(sex, -whole_weight, median),y = whole_weight))+
+        geom_boxplot(fill='blue', color='red')+
+  labs(x='Abalone Sex', y = 'Whole Weight')+
+  ggtitle("Boxplots of whole weight by sex")
+```
 
 d) Plot overlapping density curves of the same variable, one curve per factor level of `sex`, on a single set of axes. Each curve should be a different color. 
-
-
+```{r}
+ggplot(abalone) + 
+  geom_density(aes(x=whole_weight, y = ..density.., color=sex))+
+  labs(x="Whole Weight", y = "Density")+
+  ggtitle("Density curves of whole weight by sex")
+```
 
 e) Summarize the results of b), c) and d): what unique information, *specific to this variable*, is provided by each of the three graphical forms?
 
+Whole weight does not vary much between male and female abalones. However, infants weight is significantly lower than both male and female. Additionally, the infants weight varies less than both male and female. Due to biology, a lower weight for an infant is clearly to be expected. Less variance amongst infants also makes sense from the fact that infants have had less years to start to vary from each other.
 
 f) Look at photos of an abalone. Do the measurements in the dataset seem right? What's the issue?
+**?? not sure what she is looking for here**
 
 ### 2. Hepatitis 
 
 [6 points]
 
 a) Draw two histograms of the age variable in the `hepatitis` dataset in the **ucidata** package, with binwidths of 5 years and `boundary = 0`, one right open and one right closed.  How do they compare?
+one right open and one right closed.  How do they compare?
+```{r}
 
+g1 <- ggplot(hepatitis, aes(x=age, y=..density..)) +
+  geom_histogram(binwidth =  5, color='black', fill = 'red',closed = "left", boundary = 0 )+
+  labs(x='',y='')
+
+g2 <- ggplot(hepatitis, aes(x=age, y=..density..)) +
+  geom_histogram(binwidth  = 5, color='black', fill = 'red', closed = "right", boundary = 0 )+
+  labs(x='',y='')
+
+grid.arrange(g1,g2, top ='Comparing left-incl. with right incl. histograms', left = 'density', bottom = 'age')
+```
 
 b) Redraw the histogram using the parameters that you consider most appropriate for the data. Explain why you chose the parameters that you chose.
+```{r}
+ggplot(hepatitis, aes(x=age, y=..density..))+
+  geom_histogram(binwidth=5, boundary=2.5, color='black', fill='blue')+
+  ggtitle("Histogram on age from Hepatitis")
+```
+The parameters were chosen in order to smooth out any confusion about the inclusion of boundary ages. After examining the data, no data exists for ages under 2.5. Therefore, moving the boundary up to 2.5 and keeping the bins at 5 allows for a clear picture of the data.
+
 
 ### 3. Glass
 
