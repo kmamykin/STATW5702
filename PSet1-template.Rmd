@@ -20,7 +20,7 @@ then,
  # keep this chunk in your .Rmd file
  knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
-``{r} 
+```{r} 
 library(tidyverse)
 library(ggplot2)
 library(devtools)
