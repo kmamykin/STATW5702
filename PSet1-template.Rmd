@@ -122,8 +122,27 @@ a) Use `tidyr::gather()` to convert the numeric columns in the  `glass` dataset 
 6       RI 1.51596
 ```
 
+```{r}
+glass_variables = colnames(glass)[2:10]
+g1 <- gather(glass, key = "variable", value = "value", glass_variables) %>%
+  select("variable", "value")
+head(g1)
+```
+
 Use this form to plot histograms of all of the variables in one plot by faceting on `variable`. What patterns do you observe?
 
+```{r}
+ggplot(data = g1) + 
+  geom_histogram(bins = 50, aes(x = value), color = "black", fill = "blue") + 
+  facet_wrap(~variable, scales = "free") +
+  labs(x = 'Value', y = "Frequency") +
+  ggtitle("Histogram of glass variables/features")
+```
+It was hard to observe any pattern initially when using `facet_wrap()` without the `scales = "free"` parameter, due to the large range of values across features individual histograms were squeezed and did not properly visualize the undelying distribution of values.
+
+With `scales = "free"` parameter, the facets are scaled individually and the distribution of values is better visualized. 
+
+We can observe that variables Al, Ca, Na, Ri and Si are probably distributed normally, variables Ba and Fe tend to have value 0 with a long tail, variables K and Mg display dual mode. 
 
 **For the remaining parts we will consider different methods to test for normality.**
 
