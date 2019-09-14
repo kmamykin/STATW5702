@@ -148,6 +148,15 @@ We can observe that variables Al, Ca, Na, Ri and Si are probably distributed nor
 
 b) Choose one of the variables with a unimodal shape histogram and draw a true normal curve on top on the histogram. How do the two compare?
 
+```{r}
+glass_al = filter(g1, variable == "Al")
+ggplot(data = glass_al) + 
+  geom_histogram(bins = 50, aes(x = value, y = ..density..), color = "black", fill = "blue") + 
+  stat_function(fun = dnorm, args=list(mean=mean(glass_al$value), sd=sd(glass_al$value)), colour = "red") +
+  labs(x = 'Value', y = "Density") +
+  ggtitle("Histogram of Al vs Normal distribution")
+```
+We observe that the distribution of Al values roughly follows normal distribution, however the density of the values around the mean is higher and the density on the slopes is lower then the normal density. 
 
 c) Perform the Shapiro-Wilk test for normality of the variable using the `shapiro.test()` function. What do you conclude?
 
