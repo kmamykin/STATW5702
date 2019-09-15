@@ -39,17 +39,17 @@ Choose one of the numeric variables in the `abalone` dataset.
 
 a) Plot a histogram of the variable. 
 ```{r}
-print(count(abalone['whole_weight']))
 ggplot(data = abalone, aes(x=whole_weight, y =..density..)) + 
-  geom_histogram(bins = 35, color= "red", fill='blue') + 
-  geom_density(alpha= 0.3, color = 'black', fill='green')+
-  ggtitle("Histogram of Whole Weight variable")
+  geom_histogram(bins = 35, color= "black", fill='blue') + 
+  #geom_density(alpha= 0.3, color = 'black', fill='green') +
+  labs(x = "Whole Weight", y = "Density") +
+  ggtitle("Histogram of Whole Weight")
 ```
 b) Plot histograms, faceted by `sex`, for the same variable. 
 ```{r}
 ggplot(data = abalone, aes(x=whole_weight, y =..density..)) + 
-  geom_histogram(bins = 35, color= "red", fill='blue') + 
-  geom_density(alpha= 0.3, color = 'black', fill = 'green')+
+  geom_histogram(bins = 35, color= "black", fill='blue') + 
+  #geom_density(alpha= 0.3, color = 'black', fill = 'green')+
   facet_wrap(~sex)+
   labs(x = 'Abalone Weight', y = "Density")+
   ggtitle("Histogram of Whole Weight by sex")
@@ -58,7 +58,7 @@ ggplot(data = abalone, aes(x=whole_weight, y =..density..)) +
 c) Plot multiple boxplots, grouped by `sex` for the same variable. The boxplots should be ordered by decreasing median from left to right.  
 ```{r}
 ggplot(abalone, aes(x = reorder(sex, -whole_weight, median),y = whole_weight))+
-        geom_boxplot(fill='blue', color='red')+
+        geom_boxplot(fill='blue', color='black', width = 0.2)+
   labs(x='Abalone Sex', y = 'Whole Weight')+
   ggtitle("Boxplots of whole weight by sex")
 ```
@@ -87,21 +87,22 @@ one right open and one right closed.  How do they compare?
 ```{r}
 
 g1 <- ggplot(hepatitis, aes(x=age, y=..density..)) +
-  geom_histogram(binwidth =  5, color='black', fill = 'red',closed = "left", boundary = 0 )+
-  labs(x='',y='')
+  geom_histogram(binwidth =  5, color='black', fill = 'blue', closed = "left", boundary = 0 )+
+  labs(x='Age (Left inclusive)',y='')
 
 g2 <- ggplot(hepatitis, aes(x=age, y=..density..)) +
-  geom_histogram(binwidth  = 5, color='black', fill = 'red', closed = "right", boundary = 0 )+
-  labs(x='',y='')
+  geom_histogram(binwidth  = 5, color='black', fill = 'blue', closed = "right", boundary = 0 )+
+  labs(x='Age (Right inclusive)',y='')
 
-grid.arrange(g1,g2, top ='Comparing left-incl. with right incl. histograms', left = 'density', bottom = 'age')
+grid.arrange(g1,g2, top ='Comparing left-incl. with right incl. histograms', left = 'Density', bottom = '')
 ```
 
 b) Redraw the histogram using the parameters that you consider most appropriate for the data. Explain why you chose the parameters that you chose.
 ```{r}
-ggplot(hepatitis, aes(x=age, y=..density..))+
-  geom_histogram(binwidth=5, boundary=2.5, color='black', fill='blue')+
-  ggtitle("Histogram on age from Hepatitis")
+ggplot(hepatitis, aes(x=age, y=..density..)) +
+  geom_histogram(binwidth=5, boundary=2.5, color='black', fill='blue') +
+  labs(x = "Age", y = "Density") +
+  ggtitle("Histogram of age")
 ```
 The parameters were chosen in order to smooth out any confusion about the inclusion of boundary ages. After examining the data, no data exists for ages under 2.5. Therefore, moving the boundary up to 2.5 and keeping the bins at 5 allows for a clear picture of the data.
 
@@ -124,19 +125,19 @@ a) Use `tidyr::gather()` to convert the numeric columns in the  `glass` dataset 
 
 ```{r}
 glass_variables = colnames(glass)[2:10]
-g1 <- gather(glass, key = "variable", value = "value", glass_variables) %>%
+glass_values <- gather(glass, key = "variable", value = "value", glass_variables) %>%
   select("variable", "value")
-head(g1)
+head(glass_values)
 ```
 
 Use this form to plot histograms of all of the variables in one plot by faceting on `variable`. What patterns do you observe?
 
 ```{r}
-ggplot(data = g1) + 
+ggplot(data = glass_values) + 
   geom_histogram(bins = 50, aes(x = value), color = "black", fill = "blue") + 
   facet_wrap(~variable, scales = "free") +
   labs(x = 'Value', y = "Frequency") +
-  ggtitle("Histogram of glass variables/features") 
+  ggtitle("Histogram of glass variables") 
 ```
 It was hard to observe any pattern initially when using `facet_wrap()` without the `scales = "free"` parameter, due to the large range of values across features individual histograms were squeezed and did not properly visualize the undelying distribution of values.
 
@@ -149,7 +150,7 @@ We can observe that variables Al, Ca, Na, Ri and Si are probably distributed nor
 b) Choose one of the variables with a unimodal shape histogram and draw a true normal curve on top on the histogram. How do the two compare?
 
 ```{r}
-glass_al = filter(g1, variable == "Al")
+glass_al = filter(glass_values, variable == "Al")
 ggplot(data = glass_al) + 
   geom_histogram(bins = 50, aes(x = value, y = ..density..), color = "black", fill = "blue") + 
   stat_function(fun = dnorm, args=list(mean=mean(glass_al$value), sd=sd(glass_al$value)), colour = "red") +
@@ -163,7 +164,7 @@ c) Perform the Shapiro-Wilk test for normality of the variable using the `shapir
 ```{r}
 shapiro.test(glass_al$value)
 ```
-p-value is significantly less then an adequate threshold of 0.1, and therefor we reject the null hyposesis that the data is normally distributed.
+p-value is significantly less then an adequate threshold of 0.1, and therefore we reject the null hypothesis that the data is normally distributed.
 
 d) Draw a quantile-quantile (QQ) plot of the variable. Does it appear to be normally distributed?
 
@@ -190,7 +191,7 @@ TBD
 
 g) Briefly summarize your investigations. Did all of the methods produce the same result?
 
-All methods produce the same result, which is that we can not make an assumption that the Al variable of the dataset is normally distributed. By the initial visual inspection it appeared to be the most promising candidate for a normal distribution. The histogram with a normal curve overlay seems to be the least reliable method to test for normality, as it's hard to judge if diviations from the curve are artifacts from binning, or small sample. Shapiro-Wilk normality test, QQ-plot and the lineup must be used to supplement the histogram in determination if the normality assumption can be made.
+All methods produce the same result, which is that we can not make an assumption that the Al variable of the dataset is normally distributed. By the initial visual inspection it appeared to be the most promising candidate for a normal distribution. The histogram with a normal curve overlay seems to be the least reliable method to test for normality, as it's hard to judge if deviation from the curve are artifacts from binning, or small sample. Shapiro-Wilk normality test, QQ-plot and the lineup must be used to supplement the histogram in determination if the normality assumption can be made.
 
 ### 4. Forest Fires
 
@@ -200,10 +201,12 @@ Using the `forest_fires` dataset in the **ucidata** package, analyze the burned 
 
 ```{r}
 # Re-order month and day factors in the natural (not alpha) order to make sense in visualizations
-ffstats <- forest_fires %>%
+forest_fires <- forest_fires %>%
   mutate(month = factor(forest_fires$month, levels = c("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"))) %>%
   # day is not actually used in this analysis, but was useful in the exploration of the dataset
-  mutate(day = factor(forest_fires$day, levels = c("mon", "tue", "wed", "thu", "fri", "sat", "sun"))) %>%
+  mutate(day = factor(forest_fires$day, levels = c("mon", "tue", "wed", "thu", "fri", "sat", "sun")))
+
+ffstats <- forest_fires %>%
   # Calculate stats per month
   group_by(month) %>%
   summarise(
@@ -213,29 +216,29 @@ ffstats <- forest_fires %>%
   )
 
 ggplot(data = ffstats, aes(x = month, y = area)) +
-  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", color = "black", fill = "blue") + 
   geom_text(aes(label = scales::percent(pct_of_total)), position = position_dodge(width = 0.9),  vjust = -0.4) +
   labs(x = "Month", y = "Area (ha)") +
   ggtitle("Forest fires area by month")
 ```
 
-The bar chart highlights that during the months of August and September the forests are most affected by fires, and about 81% of the total burned area is burned furing those months. 
-
-### Appendix
-
-Below are some other visualizations of the area by month.
-
-This boxplot gives a better understanding of the distribution of fire areas, but the downside is that we have to hse a log10 scale since the median of all fires is 0.52 ha and the outliers that boxplot is designed to highlight are > 100 ha.
+The bar chart highlights that during the months of August and September the forests are most affected by fires, and about 81% of the total burned area is burned during those months. 
 
 ```{r}
-ggplot(data = ff) +
+ggplot(data = forest_fires) +
   geom_boxplot(aes(x = month, y = area)) + 
   scale_y_log10(labels = scales::trans_format("log10", scales::math_format(10^.x))) + 
   labs(x = "Month", y = "Area ( log10 scale )") + 
   ggtitle("Fires area by month")
 ```
+This boxplot gives a better understanding of the distribution of fire areas, but the downside is that we have to use a log10 scale since the median of all fires is 0.52ha and the outliers that boxplot is designed to highlight are > 100 ha.
+
+It appears that the months of July, August and Septenber were affected by large outliers, but on average the median size of fire is smaller then (for example) in October. Depending on the goal of analysis we may need to exclude the outliers to obtain a clear picture of the distribution and correlation of fires.
+
+
+### Appendix
 
 Below is a standard pairplot of all variables in the forest_fires dataset.
 ```{r fig.height=7, fig.width=7}
-plot(ff)
+plot(forest_fires)
 ```
