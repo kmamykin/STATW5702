@@ -136,7 +136,7 @@ ggplot(data = g1) +
   geom_histogram(bins = 50, aes(x = value), color = "black", fill = "blue") + 
   facet_wrap(~variable, scales = "free") +
   labs(x = 'Value', y = "Frequency") +
-  ggtitle("Histogram of glass variables/features")
+  ggtitle("Histogram of glass variables/features") 
 ```
 It was hard to observe any pattern initially when using `facet_wrap()` without the `scales = "free"` parameter, due to the large range of values across features individual histograms were squeezed and did not properly visualize the undelying distribution of values.
 
@@ -170,7 +170,7 @@ d) Draw a quantile-quantile (QQ) plot of the variable. Does it appear to be norm
 ```{r}
 ggplot(data = glass_al, aes(sample = value)) +
   geom_qq() + 
-  geom_qq_line()
+  geom_qq_line(color = "red")
 ```
 It is apparent from the plot that the sample is not normally distributed. The tails of the sample are off.
 
@@ -198,4 +198,44 @@ All methods produce the same result, which is that we can not make an assumption
 
 Using the `forest_fires` dataset in the **ucidata** package, analyze the burned area of the forest by month.  Use whatever graphical forms you deem most appropriate. Describe important trends.
 
+```{r}
+# Re-order month and day factors in the natural (not alpha) order to make sense in visualizations
+ffstats <- forest_fires %>%
+  mutate(month = factor(forest_fires$month, levels = c("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"))) %>%
+  # day is not actually used in this analysis, but was useful in the exploration of the dataset
+  mutate(day = factor(forest_fires$day, levels = c("mon", "tue", "wed", "thu", "fri", "sat", "sun"))) %>%
+  # Calculate stats per month
+  group_by(month) %>%
+  summarise(
+    count = n(), # also not used in this particular visualization
+    area = sum(area),
+    pct_of_total = sum(area) / sum(forest_fires$area)
+  )
 
+ggplot(data = ffstats, aes(x = month, y = area)) +
+  geom_bar(stat = "identity") + 
+  geom_text(aes(label = scales::percent(pct_of_total)), position = position_dodge(width = 0.9),  vjust = -0.4) +
+  labs(x = "Month", y = "Area (ha)") +
+  ggtitle("Forest fires area by month")
+```
+
+The bar chart highlights that during the months of August and September the forests are most affected by fires, and about 81% of the total burned area is burned furing those months. 
+
+### Appendix
+
+Below are some other visualizations of the area by month.
+
+This boxplot gives a better understanding of the distribution of fire areas, but the downside is that we have to hse a log10 scale since the median of all fires is 0.52 ha and the outliers that boxplot is designed to highlight are > 100 ha.
+
+```{r}
+ggplot(data = ff) +
+  geom_boxplot(aes(x = month, y = area)) + 
+  scale_y_log10(labels = scales::trans_format("log10", scales::math_format(10^.x))) + 
+  labs(x = "Month", y = "Area ( log10 scale )") + 
+  ggtitle("Fires area by month")
+```
+
+Below is a standard pairplot of all variables in the forest_fires dataset.
+```{r fig.height=7, fig.width=7}
+plot(ff)
+```
