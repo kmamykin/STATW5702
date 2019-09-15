@@ -47,10 +47,13 @@ ggplot(data = abalone, aes(x=whole_weight, y =..density..)) +
 ```
 b) Plot histograms, faceted by `sex`, for the same variable. 
 ```{r}
+sex.labs <- c("Female", "Infant", "Male")
+names(sex.labs) <- c("F", "I", "M")
+
 ggplot(data = abalone, aes(x=whole_weight, y =..density..)) + 
   geom_histogram(bins = 35, color= "black", fill='blue') + 
   #geom_density(alpha= 0.3, color = 'black', fill = 'green')+
-  facet_wrap(~sex)+
+  facet_wrap(~sex, labeller = labeller(sex = sex.labs))+
   labs(x = 'Abalone Weight', y = "Density")+
   ggtitle("Histogram of Whole Weight by sex")
 ```
@@ -60,6 +63,7 @@ c) Plot multiple boxplots, grouped by `sex` for the same variable. The boxplots 
 ggplot(abalone, aes(x = reorder(sex, -whole_weight, median),y = whole_weight))+
         geom_boxplot(fill='blue', color='black', width = 0.2)+
   labs(x='Abalone Sex', y = 'Whole Weight')+
+  scale_x_discrete(labels = c("Female", "Male", "Infant"))+
   ggtitle("Boxplots of whole weight by sex")
 ```
 
@@ -68,6 +72,7 @@ d) Plot overlapping density curves of the same variable, one curve per factor le
 ggplot(abalone) + 
   geom_density(aes(x=whole_weight, y = ..density.., color=sex))+
   labs(x="Whole Weight", y = "Density")+
+  scale_color_discrete(labels = c("Female", "Infant", "Male"))+
   ggtitle("Density curves of whole weight by sex")
 ```
 
