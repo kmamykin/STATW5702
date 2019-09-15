@@ -160,9 +160,19 @@ We observe that the distribution of Al values roughly follows normal distributio
 
 c) Perform the Shapiro-Wilk test for normality of the variable using the `shapiro.test()` function. What do you conclude?
 
-
+```{r}
+shapiro.test(glass_al$value)
+```
+p-value is significantly less then an adequate threshold of 0.1, and therefor we reject the null hyposesis that the data is normally distributed.
 
 d) Draw a quantile-quantile (QQ) plot of the variable. Does it appear to be normally distributed?
+
+```{r}
+ggplot(data = glass_al, aes(sample = value)) +
+  geom_qq() + 
+  geom_qq_line()
+```
+It is apparent from the plot that the sample is not normally distributed. The tails of the sample are off.
 
 e) Use the **nullabor** package to create a lineup of histograms in which one panel is the real data and the others are fake data generated from a null hypothesis of normality. Can you pick out the real data? If so, how does the shape of its histogram differ from the others? 
 
