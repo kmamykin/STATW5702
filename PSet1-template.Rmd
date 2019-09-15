@@ -28,7 +28,7 @@ devtools::install_github("coatless/ucidata")
 library(ucidata)
 library(ggthemes)
 library(gridExtra)
-
+library(nullabor)
 ```    
 
 ### 1. Abalone 
@@ -176,10 +176,21 @@ It is apparent from the plot that the sample is not normally distributed. The ta
 
 e) Use the **nullabor** package to create a lineup of histograms in which one panel is the real data and the others are fake data generated from a null hypothesis of normality. Can you pick out the real data? If so, how does the shape of its histogram differ from the others? 
 
+```{r}
+d <- lineup(null_dist("value", dist = "normal"), glass_al)
+ggplot(data = d, aes(x = value, y = ..density..)) + 
+  geom_histogram(bins = 50, color = "black", fill = "blue") + 
+  facet_wrap(~ .sample)
+```
+I have been able to correctly select the real data histogram from several lineups. The null hyposesis normal histograms are spread out more vs real histogram narrow peak in the middle and low sholders.
+
 f) Show the lineup to someone else, not in our class (anyone, no background knowledge required). Ask them which plot looks the most different from the others. Did they choose the real data?
+
+TBD
 
 g) Briefly summarize your investigations. Did all of the methods produce the same result?
 
+All methods produce the same result, which is that we can not make an assumption that the Al variable of the dataset is normally distributed. By the initial visual inspection it appeared to be the most promising candidate for a normal distribution. The histogram with a normal curve overlay seems to be the least reliable method to test for normality, as it's hard to judge if diviations from the curve are artifacts from binning, or small sample. Shapiro-Wilk normality test, QQ-plot and the lineup must be used to supplement the histogram in determination if the normality assumption can be made.
 
 ### 4. Forest Fires
 
