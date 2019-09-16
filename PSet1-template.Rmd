@@ -29,6 +29,10 @@ library(ucidata)
 library(ggthemes)
 library(gridExtra)
 library(nullabor)
+
+# Declare color variables to be used in all plots
+theme.fill = "lightskyblue2"
+theme.color = "grey10"
 ```    
 
 ### 1. Abalone 
@@ -40,8 +44,7 @@ Choose one of the numeric variables in the `abalone` dataset.
 a) Plot a histogram of the variable. 
 ```{r}
 ggplot(data = abalone, aes(x=whole_weight, y =..density..)) + 
-  geom_histogram(bins = 35, color= "black", fill='blue') + 
-  #geom_density(alpha= 0.3, color = 'black', fill='green') +
+  geom_histogram(bins = 35, color = theme.color, fill = theme.fill) + 
   labs(x = "Whole Weight", y = "Density") +
   ggtitle("Histogram of Whole Weight")
 ```
@@ -51,28 +54,27 @@ sex.labs <- c("Female", "Infant", "Male")
 names(sex.labs) <- c("F", "I", "M")
 
 ggplot(data = abalone, aes(x=whole_weight, y =..density..)) + 
-  geom_histogram(bins = 35, color= "black", fill='blue') + 
-  #geom_density(alpha= 0.3, color = 'black', fill = 'green')+
-  facet_wrap(~sex, labeller = labeller(sex = sex.labs))+
-  labs(x = 'Abalone Weight', y = "Density")+
+  geom_histogram(bins = 35, color = theme.color, fill = theme.fill) + 
+  facet_wrap(~sex, labeller = labeller(sex = sex.labs)) +
+  labs(x = 'Abalone Weight', y = "Density") +
   ggtitle("Histogram of Whole Weight by sex")
 ```
 
 c) Plot multiple boxplots, grouped by `sex` for the same variable. The boxplots should be ordered by decreasing median from left to right.  
 ```{r}
-ggplot(abalone, aes(x = reorder(sex, -whole_weight, median),y = whole_weight))+
-        geom_boxplot(fill='blue', color='black', width = 0.2)+
-  labs(x='Abalone Sex', y = 'Whole Weight')+
-  scale_x_discrete(labels = c("Female", "Male", "Infant"))+
+ggplot(abalone, aes(x = reorder(sex, -whole_weight, median),y = whole_weight)) +
+        geom_boxplot( width = 0.2, color = theme.color, fill = theme.fill) +
+  labs(x='Abalone Sex', y = 'Whole Weight') +
+  scale_x_discrete(labels = c("Female", "Male", "Infant")) +
   ggtitle("Boxplots of whole weight by sex")
 ```
 
 d) Plot overlapping density curves of the same variable, one curve per factor level of `sex`, on a single set of axes. Each curve should be a different color. 
 ```{r}
 ggplot(abalone) + 
-  geom_density(aes(x=whole_weight, y = ..density.., color=sex))+
-  labs(x="Whole Weight", y = "Density")+
-  scale_color_discrete(labels = c("Female", "Infant", "Male"))+
+  geom_density(aes(x=whole_weight, y = ..density.., color=sex)) +
+  labs(x="Whole Weight", y = "Density") +
+  scale_color_discrete(labels = c("Female", "Infant", "Male")) +
   ggtitle("Density curves of whole weight by sex")
 ```
 
@@ -92,11 +94,11 @@ one right open and one right closed.  How do they compare?
 ```{r}
 
 g1 <- ggplot(hepatitis, aes(x=age, y=..density..)) +
-  geom_histogram(binwidth =  5, color='black', fill = 'blue', closed = "left", boundary = 0 )+
+  geom_histogram(binwidth =  5, closed = "left", boundary = 0, color = theme.color, fill = theme.fill) +
   labs(x='Age (Left inclusive)',y='')
 
 g2 <- ggplot(hepatitis, aes(x=age, y=..density..)) +
-  geom_histogram(binwidth  = 5, color='black', fill = 'blue', closed = "right", boundary = 0 )+
+  geom_histogram(binwidth  = 5, closed = "right", boundary = 0, color = theme.color, fill = theme.fill) +
   labs(x='Age (Right inclusive)',y='')
 
 grid.arrange(g1,g2, top ='Comparing left-incl. with right incl. histograms', left = 'Density', bottom = '')
@@ -105,7 +107,7 @@ grid.arrange(g1,g2, top ='Comparing left-incl. with right incl. histograms', lef
 b) Redraw the histogram using the parameters that you consider most appropriate for the data. Explain why you chose the parameters that you chose.
 ```{r}
 ggplot(hepatitis, aes(x=age, y=..density..)) +
-  geom_histogram(binwidth=5, boundary=2.5, color='black', fill='blue') +
+  geom_histogram(binwidth=5, boundary=2.5, color = theme.color, fill = theme.fill) +
   labs(x = "Age", y = "Density") +
   ggtitle("Histogram of age")
 ```
@@ -139,7 +141,7 @@ Use this form to plot histograms of all of the variables in one plot by faceting
 
 ```{r}
 ggplot(data = glass_values) + 
-  geom_histogram(bins = 50, aes(x = value), color = "black", fill = "blue") + 
+  geom_histogram(bins = 50, aes(x = value), color = theme.color, fill = theme.fill) + 
   facet_wrap(~variable, scales = "free") +
   labs(x = 'Value', y = "Frequency") +
   ggtitle("Histogram of glass variables") 
@@ -157,7 +159,7 @@ b) Choose one of the variables with a unimodal shape histogram and draw a true n
 ```{r}
 glass_al = filter(glass_values, variable == "Al")
 ggplot(data = glass_al) + 
-  geom_histogram(bins = 50, aes(x = value, y = ..density..), color = "black", fill = "blue") + 
+  geom_histogram(bins = 50, aes(x = value, y = ..density..), color = theme.color, fill = theme.fill) + 
   stat_function(fun = dnorm, args=list(mean=mean(glass_al$value), sd=sd(glass_al$value)), colour = "red") +
   labs(x = 'Value', y = "Density") +
   ggtitle("Histogram of Al vs Normal distribution")
@@ -175,7 +177,7 @@ d) Draw a quantile-quantile (QQ) plot of the variable. Does it appear to be norm
 
 ```{r}
 ggplot(data = glass_al, aes(sample = value)) +
-  geom_qq() + 
+  geom_qq(color = theme.color) + 
   geom_qq_line(color = "red")
 ```
 It is apparent from the plot that the sample is not normally distributed. The tails of the sample are off.
@@ -185,7 +187,7 @@ e) Use the **nullabor** package to create a lineup of histograms in which one pa
 ```{r}
 d <- lineup(null_dist("value", dist = "normal"), glass_al)
 ggplot(data = d, aes(x = value, y = ..density..)) + 
-  geom_histogram(bins = 50, color = "black", fill = "blue") + 
+  geom_histogram(bins = 50, color = theme.color, fill = theme.fill) + 
   facet_wrap(~ .sample)
 ```
 I have been able to correctly select the real data histogram from several lineups. The null hyposesis normal histograms are spread out more vs real histogram narrow peak in the middle and low sholders.
@@ -221,7 +223,7 @@ ffstats <- forest_fires %>%
   )
 
 ggplot(data = ffstats, aes(x = month, y = area)) +
-  geom_bar(stat = "identity", color = "black", fill = "blue") + 
+  geom_bar(stat = "identity", color = theme.color, fill = theme.fill) + 
   geom_text(aes(label = scales::percent(pct_of_total)), position = position_dodge(width = 0.9),  vjust = -0.4) +
   labs(x = "Month", y = "Area (ha)") +
   ggtitle("Forest fires area by month")
@@ -231,7 +233,7 @@ The bar chart highlights that during the months of August and September the fore
 
 ```{r}
 ggplot(data = forest_fires) +
-  geom_boxplot(aes(x = month, y = area)) + 
+  geom_boxplot(aes(x = month, y = area), color = theme.color, fill = theme.fill) + 
   scale_y_log10(labels = scales::trans_format("log10", scales::math_format(10^.x))) + 
   labs(x = "Month", y = "Area ( log10 scale )") + 
   ggtitle("Fires area by month")
