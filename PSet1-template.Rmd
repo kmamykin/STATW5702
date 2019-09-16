@@ -4,6 +4,8 @@ title: "EDAV Fall 2019 Probem Set 1"
 output: pdf_document
 ---
 
+my changes
+
 Read *Graphical Data Analysis with R*, Ch. 3
 
 Grading is based both on your graphs and verbal explanations. Follow all best practices as discussed in class.
