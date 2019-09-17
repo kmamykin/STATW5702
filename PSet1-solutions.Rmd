@@ -1,5 +1,5 @@
 ---
-author: Luke Beasley and Kliment Mamykin
+author: Luke Beasley (lcb2165) and Kliment Mamykin (km2770)
 title: "EDAV Fall 2019 Probem Set 1"
 output: pdf_document
 ---
