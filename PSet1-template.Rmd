@@ -164,9 +164,7 @@ ggplot(data = glass_al) +
   geom_density(bw = 0.15, aes(x = value, y = ..density..), color="green") +
   stat_function(fun = dnorm, args=list(mean=mean(glass_al$value), sd=sd(glass_al$value)), colour = "red") +
   labs(x = 'Value', y = "Density") +
-  scale_colour_manual(name = 'Curves') +
-  theme(legend.position = "right") + 
-  ggtitle("Histogram of Al vs Normal distribution")
+  ggtitle("Al Histogram vs Density (green curve) vs Normal density (red curve)")
 ```
 We observe that the distribution of Al values roughly follows normal distribution, however the density of the values around the mean is higher and the density on the slopes is lower then the normal density. 
 
