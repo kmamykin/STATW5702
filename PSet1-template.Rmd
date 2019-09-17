@@ -4,8 +4,6 @@ title: "EDAV Fall 2019 Probem Set 1"
 output: pdf_document
 ---
 
-my changes
-
 Read *Graphical Data Analysis with R*, Ch. 3
 
 Grading is based both on your graphs and verbal explanations. Follow all best practices as discussed in class.
@@ -85,7 +83,9 @@ e) Summarize the results of b), c) and d): what unique information, *specific to
 Whole weight does not vary much between male and female abalones. However, infants weight is significantly lower than both male and female. Additionally, the infants weight varies less than both male and female. Due to biology, a lower weight for an infant is clearly to be expected. Less variance amongst infants also makes sense from the fact that infants have had less years to start to vary from each other.
 
 f) Look at photos of an abalone. Do the measurements in the dataset seem right? What's the issue?
-**?? not sure what she is looking for here**
+
+The measurements do not appear correct. Abalone shells appear to be much bigger than the data shows. Images of abalone shells will confirm that the shells are roughly similar size as a human hand. However, the data measure the shells in terms of millimeters. Most of the measurements in the dataset would have abalone shells be about the size of a penny. It may be that the data is just labeled wrong or the measurements may be wrong altogether.
+
 
 ### 2. Hepatitis 
 
