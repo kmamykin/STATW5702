@@ -198,7 +198,7 @@ I have been able to correctly select the real data histogram from several lineup
 
 f) Show the lineup to someone else, not in our class (anyone, no background knowledge required). Ask them which plot looks the most different from the others. Did they choose the real data?
 
-TBD
+A third-party observer was able to correctly identify the real data distribution. That is another indication that the distribution of the variable is different from the normal distribution. 
 
 g) Briefly summarize your investigations. Did all of the methods produce the same result?
 
