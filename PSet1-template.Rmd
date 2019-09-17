@@ -132,7 +132,8 @@ a) Use `tidyr::gather()` to convert the numeric columns in the  `glass` dataset 
 
 ```{r}
 glass_variables = colnames(glass)[2:10]
-glass_values <- gather(glass, key = "variable", value = "value", glass_variables) %>%
+glass_values <- glass %>%
+  gather(key = "variable", value = "value", glass_variables) %>%
   select("variable", "value")
 head(glass_values)
 ```
@@ -160,8 +161,11 @@ b) Choose one of the variables with a unimodal shape histogram and draw a true n
 glass_al = filter(glass_values, variable == "Al")
 ggplot(data = glass_al) + 
   geom_histogram(bins = 50, aes(x = value, y = ..density..), color = theme.color, fill = theme.fill) + 
+  geom_density(bw = 0.15, aes(x = value, y = ..density..), color="green") +
   stat_function(fun = dnorm, args=list(mean=mean(glass_al$value), sd=sd(glass_al$value)), colour = "red") +
   labs(x = 'Value', y = "Density") +
+  scale_colour_manual(name = 'Curves') +
+  theme(legend.position = "right") + 
   ggtitle("Histogram of Al vs Normal distribution")
 ```
 We observe that the distribution of Al values roughly follows normal distribution, however the density of the values around the mean is higher and the density on the slopes is lower then the normal density. 
