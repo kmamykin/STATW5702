@@ -14,6 +14,11 @@ Grading is based both on your graphs and verbal explanations. Follow all best pr
 ```{r setup, include=FALSE}
  # keep this chunk in your .Rmd file
  knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+library(tidyverse)
+library(robotstxt)
+library(rvest)
+library(plotly)
 ```
     
 ### 1. useR2016! survey
@@ -56,6 +61,23 @@ To get the data for this problem, we'll use the **robotstxt** package to check t
 
 Display the first six lines of the vector.
 
+```{r}
+paths_allowed(paths = "https://www.rottentomatoes.com/browse/box-office/", warn = TRUE)
+```
+
+```{r}
+rottentomatoes.box_office_urls <- function(rank_id = 0, country = 'us') {
+  read_html(sprintf("https://www.rottentomatoes.com/browse/box-office/?rank_id=%d&country=%s", rank_id, country)) %>%
+    html_node("table.center.table") %>%
+    html_nodes("td > a") %>%
+    html_attr("href") %>%
+    map(~ str_c("https://www.rottentomatoes.com", .)) %>%
+    as.character
+}
+links <- rottentomatoes.box_office_urls()
+head(links, 6)
+```
+
 (b) Write a function to read the content of one page and pull out the title, tomatometer score and audience score of the film. Then iterate over the vector of all movies using `do.call() / rbind() / lapply()` or `dplyr::bind_rows() / purrr::map()` to create a three column data frame (or tibble).
 
 Display the first six lines of your data frame.
@@ -64,15 +86,92 @@ Display the first six lines of your data frame.
  
 For help, see this SO post: https://stackoverflow.com/questions/36709184/build-data-frame-from-multiple-rvest-elements
 
+```{r}
+rottentomatoes.get_movies <- function(movie_urls) {
+  pager <- function(page) {
+      doc <- read_html(url(page))
+      data.frame(
+          title = doc %>% html_node("div.score_panel > h1") %>% html_text() %>% as.character,
+          tomatometer = doc %>% html_node("#tomato_meter_link") %>% html_text() %>% str_trim() %>% str_replace("%","") %>% as.double,
+          audience_score = doc %>% html_node("div.audience-score > h2") %>% html_text() %>% str_trim() %>% str_replace("%","") %>% as.double,
+          url = page,
+          stringsAsFactors=FALSE
+      )
+  }
+  return(do.call(rbind, lapply(movie_urls, pager))) 
+}
+movies <- rottentomatoes.get_movies(rottentomatoes.box_office_urls())
+head(movies, 3)
+```
+
 Write your data to file so you don't need to scrape the site each time you need to access it.
+```{r}
+write.csv(movies, file = "rottentomatoes_movies.csv", row.names=FALSE)
+```
 
 (c) Create a Cleveland dot plot of tomatometer scores.
-
+```{r fig.height=4, fig.width=3}
+# create a theme for dot plots, which can be reused
+theme_dotplot <- theme_bw(12) +
+    theme(
+        plot.title = element_text(size = rel(1)),
+        axis.text.y = element_text(size = rel(.75)),
+        axis.ticks.y = element_blank(),
+        axis.title.x = element_text(size = rel(.75)),
+        panel.grid.major.x = element_line(size = 0.2),
+        panel.grid.major.y = element_line(size = 0.75),
+        panel.grid.minor.x = element_blank()
+    )
+        
+# create the plot
+movies %>%
+  # Replace NA score with -1, which causes those movies to be sorted at the bottom of the plot
+  # The value of -1 is not shown since we wet the scale for x to be [0,100]
+  mutate(tomatometer=ifelse(is.na(tomatometer), -1, tomatometer)) %>%
+  ggplot(aes(x = tomatometer, y = fct_reorder(title, tomatometer))) +
+    geom_point(color = "blue") +
+    scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, 20)) +
+    theme_dotplot +
+    xlab("Tomatometer score") +
+    ylab("") +
+    ggtitle("Movies ranked by tomatometer score")
+```
 
 (d) Create a Cleveland dot plot of tomatometer *and* audience scores on the same graph, one color for each. Sort by audience score.
+```{r fig.height=4, fig.width=3}
+
+movies %>%
+  # Replace NA score with -1, which causes those movies to be sorted at the bottom of the plot
+  # The value of -1 is not shown since we wet the scale for x to be [0,100]
+  mutate(tomatometer=ifelse(is.na(tomatometer), -1, tomatometer)) %>%
+  mutate(audience_score=ifelse(is.na(audience_score), -1, audience_score)) %>%
+  gather(key = "Score", value = "value", tomatometer, audience_score) %>%
+  ggplot(aes(x = value, y = fct_reorder2(title, Score=='audience_score', value, .desc = FALSE), color = Score)) +
+    geom_point() +
+    scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, 20)) +
+    theme_dotplot + theme(
+      legend.position = "top",
+      legend.title = element_text(size = rel(0.75))
+    ) + 
+    xlab("") +
+    ylab("") +
+    ggtitle("Movies scores")
+```
 
 
 (e) Run your code again for the weekend of July 5 - July 7, 2019. Use **plotly** to create a scatterplot of audience score vs. tomatometer score with the ability to hover over the point to see the film title.
+```{r}
+movies_july05_july07 <- rottentomatoes.get_movies(rottentomatoes.box_office_urls(rank_id=12))
+```
+
+```{r}
+g <- ggplot(movies_july05_july07, aes(audience_score, tomatometer, text = paste("title:", title))) +
+      geom_point(color = "blue", alpha = .4, na.rm = TRUE) + 
+      expand_limits(x = 0, y = 0) + 
+      ggtitle("Movie scores") +
+      theme_dotplot
+ggplotly(g, height = 500, width = 500)
+```
 
 ### 3. Weather
 
