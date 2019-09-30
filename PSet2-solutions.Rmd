@@ -19,6 +19,7 @@ library(tidyverse)
 library(robotstxt)
 library(rvest)
 library(plotly)
+library(forwards)
 ```
     
 ### 1. useR2016! survey
@@ -35,21 +36,112 @@ For parts (a) and (b):
 
 (a) Create a horizontal bar chart of the responses to Q20.
 
+```{r}
+useR2016 %>%
+  group_by(Q20) %>%
+  summarise(Counts = n()) %>%
+  ungroup() %>%
+  mutate(Q20 = ifelse(is.na(Q20), "NA", as.character(Q20))) %>%
+  ggplot(aes(fct_reorder(Q20, Counts), Counts)) +
+    geom_col() + 
+    coord_flip() + 
+    theme_bw(14) +
+    theme(
+      plot.title = element_text(size = rel(1)),
+      plot.caption = element_text(hjust = 0)
+    ) + 
+    labs(title = "What would be your preferred medium for R community news?",
+       caption = "Source\ndataset: userR2016\npackage: forwards\nurl: https://www.rdocumentation.org/packages/forwards/versions/0.1.1/topics/useR2016", 
+       x = "", y = "respondents")
+```
 
 (b) Create a vertical bar chart of the responses to Q11.
-
+```{r}
+useR2016 %>%
+  group_by(Q11) %>%
+  summarise(Counts = n()) %>%
+  ungroup() %>%
+  ggplot(aes(fct_relevel(Q11, "> 10 years", after = 3), Counts)) +
+    geom_col() + 
+    theme_bw(14) +
+    theme(
+      plot.title = element_text(size = rel(1)),
+      plot.caption = element_text(hjust = 0)
+    ) + 
+    labs(title = "How long have you been using R?",
+       caption = "Source\ndataset: userR2016\npackage: forwards\nurl: https://www.rdocumentation.org/packages/forwards/versions/0.1.1/topics/useR2016", 
+       x = "", y = "respondents")
+```
 
 (c) Create a horizontal stacked bar chart showing the proportion of respondents for each level of Q11 who are over 35 vs. 35 or under. Use a descriptive title. 
 
+```{r}
+useR2016 %>%
+  mutate(Q11 = ifelse(is.na(Q11), "NA", as.character(Q11))) %>%
+  mutate(Q11 = fct_relevel(Q11, c("NA"), after = 4)) %>%
+  mutate(Q11 = fct_relevel(Q11, c("> 10 years"), after = 3)) %>%
+  mutate(Q3 = ifelse(is.na(Q3), "NA", as.character(Q3))) %>%
+  mutate(Q3 = fct_relevel(Q3, c("> 35"), after = 1)) %>%
+  group_by(Q11, Q3) %>%
+  summarise(Freq = n()) %>%
+  ungroup() %>%
+  ggplot(aes(fct_rev(Q11), Freq, fill = Q3)) +
+    geom_col() + 
+    coord_flip() +
+    theme_bw(14) +
+    theme(
+      plot.title = element_text(size = rel(1)),
+      plot.caption = element_text(hjust = 0)
+    ) + 
+    labs(title = "Breakdown of R usage by age",
+       x = "", y = "respondents")
+```
 
 (d) Create a horizontal stacked bar chart showing the proportional breakdown of Q11 for each level of Q3, faceted on Q2. Use a descriptive title. 
 
+```{r}
+useR2016 %>%
+  mutate(Q11 = ifelse(is.na(Q11), "NA", as.character(Q11))) %>%
+  mutate(Q11 = fct_relevel(Q11, c("NA"), after = 4)) %>%
+  mutate(Q11 = fct_relevel(Q11, c("> 10 years"), after = 3)) %>%
+  mutate(Q3 = ifelse(is.na(Q3), "NA", as.character(Q3))) %>%
+  mutate(Q3 = fct_relevel(Q3, c("> 35"), after = 1)) %>%
+  mutate(Q2 = fct_relevel(Q2, c("Women"), after = 1)) %>%
+  group_by(Q11, Q3, Q2) %>%
+  summarise(Freq = n()) %>%
+  ungroup() %>%
+  ggplot(aes(fct_rev(Q11), Freq, fill = Q3)) +
+    geom_col() + 
+    coord_flip() +
+    facet_wrap(~Q2) +
+    theme_bw(14) +
+    theme(
+      plot.title = element_text(size = rel(1)),
+      plot.caption = element_text(hjust = 0)
+    ) + 
+    labs(title = "Breakdown of R usage by age for gender",
+       x = "", y = "respondents")
+```
 
 (e) For the next part, we will need to be able to add line breaks (`\n`) to long tick mark labels. Write a function that takes a character string and a desired approximate line length in number of characters and substitutes a line break for the first space after every multiple of the specified line length.
 
 
 (f) Create a horizontal bar chart that shows the percentage of positive responses for `Q13 - Q13_F`. Use your function from part (e) to add line breaks to the responses. Your graph should have one bar each for `Q13 - Q13_F`.
 
+```{r}
+# Work in progress....
+useR2016 %>%
+  select(Q13, Q13_B, Q13_C, Q13_D, Q13_E, Q13_F) %>%
+  gather(key = "Question", value = "Label", Q13, Q13_B, Q13_C, Q13_D, Q13_E, Q13_F) %>%
+  group_by(Question, Label) %>%
+  summarize(Freq = n()) %>%
+  mutate(prop = Freq/sum(Freq)) %>%
+  ungroup() %>%
+  ggplot(aes(Question, Freq)) +
+    geom_col()
+    
+
+```
 
 ### 2. Rotten Tomatoes
 
