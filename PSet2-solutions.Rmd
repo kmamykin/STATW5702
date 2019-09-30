@@ -20,6 +20,9 @@ library(robotstxt)
 library(rvest)
 library(plotly)
 library(forwards)
+library(dplyr)
+library(purrr)
+library(stringr)
 ```
     
 ### 1. useR2016! survey
@@ -47,8 +50,8 @@ useR2016 %>%
     coord_flip() + 
     theme_bw(14) +
     theme(
-      plot.title = element_text(size = rel(1)),
-      plot.caption = element_text(hjust = 0)
+      plot.title = element_text(size = rel(0.9)),
+      # plot.caption = element_text(hjust = 0)
     ) + 
     labs(title = "What would be your preferred medium for R community news?",
        caption = "Source\ndataset: userR2016\npackage: forwards\nurl: https://www.rdocumentation.org/packages/forwards/versions/0.1.1/topics/useR2016", 
@@ -97,6 +100,25 @@ useR2016 %>%
        x = "", y = "respondents")
 ```
 
+```{r}
+# I think this plot should show proportions and the x-axis
+# should be ordered by years as shown by the example
+# And should we remove all NA?
+
+stack_Q11 <- useR2016 %>% select(Q3, Q11) %>% 
+  filter(! is.na(Q3) & ! is.na(Q11))
+
+ggplot(stack_Q11, aes(x=Q11)) + 
+  geom_bar(aes(y=(..count..), fill = Q3), position = "fill") + 
+  coord_flip() + 
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.01)) + 
+  ylab("Proportion") + 
+  xlab("R using years") + 
+  labs(fill = "Age",
+      title = "Breakdown of R usage by age")
+```
+
+
 (d) Create a horizontal stacked bar chart showing the proportional breakdown of Q11 for each level of Q3, faceted on Q2. Use a descriptive title. 
 
 ```{r}
@@ -123,8 +145,54 @@ useR2016 %>%
        x = "", y = "respondents")
 ```
 
+```{r}
+# Same issues like question.c
+stack_Q3 <- useR2016 %>% select(Q2, Q3, Q11) %>% 
+  filter(! is.na(Q11) & ! is.na(Q3)) %>% 
+  filter(Q2 != "Non-Binary/Unknown")
+
+ggplot(stack_Q3, aes(x=fct_rev(Q3))) + 
+  geom_bar(aes(y=(..count..), 
+               fill=fct_rev(Q11)), position = "fill") +
+  facet_wrap(~ Q2, nrow = 2) + 
+  coord_flip() + 
+  xlab("Age") + 
+  ylab("proportion") + 
+  labs(fill = "R using time",
+      title = paste("R using time proportion within",
+                "different age and gender groups")) + 
+  theme(legend.position = 'bottom', 
+        legend.direction = "horizontal", 
+        legend.box = "horizontal")
+```
+
 (e) For the next part, we will need to be able to add line breaks (`\n`) to long tick mark labels. Write a function that takes a character string and a desired approximate line length in number of characters and substitutes a line break for the first space after every multiple of the specified line length.
 
+```{r}
+add_line_breaks <- function(vec_str, len) {
+  add_newline <- function(str, len) {
+    space_loc <- str_locate_all(str, "[ \t]+")[[1]][,1]
+    buffer <- 0
+    last_loc <- 0
+    for (loc in space_loc) {
+      buffer <- buffer + loc - last_loc
+      if (buffer > len) {
+        substr(str, loc, loc) <- "\n"
+        buffer <- 0
+      }
+    last_loc <- loc
+    }
+    str
+  }
+  unlist(map(vec_str, function(str) add_newline(str, len)))
+}
+```
+A simple demo,
+
+```{r}
+long_str <- "We hold these truths to be self-evident, that all men are created equal, that they are endowed by their Creator with certain unalienable Rights, that among these are Life, Liberty and the pursuit of Happiness."
+add_line_breaks(long_str, 50)
+```
 
 (f) Create a horizontal bar chart that shows the percentage of positive responses for `Q13 - Q13_F`. Use your function from part (e) to add line breaks to the responses. Your graph should have one bar each for `Q13 - Q13_F`.
 
@@ -139,8 +207,34 @@ useR2016 %>%
   ungroup() %>%
   ggplot(aes(Question, Freq)) +
     geom_col()
-    
+```
 
+```{r}
+base_df <- useR2016 %>% select(matches("Q13"))
+
+pos_response <- base_df %>% 
+  summarise_all(.funs = function(x) levels(factor(x))) %>% 
+  tidyr::gather(key="question", value="posResponse", .)
+
+countNA_Q13 <- base_df %>% 
+  summarise_all(.funs = function (x) sum(is.na(x))) %>% 
+  tidyr::gather(key="question", value="naCount", .)
+
+pos_count <- inner_join(x = pos_response, y = countNA_Q13, "question") %>% 
+  mutate(percentage= 1 - naCount / nrow(base_df)) %>% 
+  mutate(folded=factor(add_line_breaks(posResponse, 20)))
+```
+
+```{r}
+ggplot(pos_count) + 
+  geom_col(aes(x=fct_reorder(folded, percentage), 
+               y=percentage)) + 
+  coord_flip() + 
+  xlab("R Usages") + 
+  ylab("Percentage of Positive Responses") +
+  scale_y_continuous(labels = scales::percent, limits = c(0,1)) +
+  labs(title = "What did you use R for?")
+  
 ```
 
 ### 2. Rotten Tomatoes
@@ -166,7 +260,50 @@ rottentomatoes.box_office_urls <- function(rank_id = 0, country = 'us') {
     map(~ str_c("https://www.rottentomatoes.com", .)) %>%
     as.character
 }
-links <- rottentomatoes.box_office_urls()
+```
+
+
+```{r}
+get_all_links_by_weekend <- function (weekend="Last Weekend") {
+  webpage <- read_html("https://www.rottentomatoes.com/browse/box-office/")
+  select_forms <- webpage %>% 
+    html_nodes("select") # two forms are exactly the same
+  form <- select_forms[[1]]
+  all_options <- form %>% html_nodes("option")
+
+  weekends <- map(all_options, function (opt) html_text(opt))
+  rel_links <- map(all_options, function (opt) html_attr(opt, "value"))
+  
+  squish_lower_case <- function(str) {
+    str %>% str_replace_all(pattern = " ", replacement = "") %>% 
+      tolower()
+  }
+  
+  weekends <- map(weekends, squish_lower_case)
+  weekend <- squish_lower_case(weekend)
+  
+  match_idx <- match(weekend, weekends)
+  if(is.na(match_idx)) {
+    sprintf("All available choices: %s\n", str(weekends))
+    sprintf("But your choice %s is not among them!", weekend)
+    stop()
+  }
+  chosen_weekend_link <- rel_links[[match_idx]]
+  sprintf("The link to this chosen weekend: %s", chosen_weekend_link)
+  
+  home_link <- "https://www.rottentomatoes.com"
+  webpage <- read_html(paste(home_link, chosen_weekend_link, sep = ""))
+  elems <- webpage %>% html_nodes("td a")
+  links <- purrr::map(elems, function (x)
+    paste("https://www.rottentomatoes.com", html_attr(x, "href"), sep = ""))
+  links <- unlist(links)
+}
+```
+
+
+```{r}
+links <- get_all_links_by_weekend()
+# or links <- rottentomatoes.box_office_urls()
 head(links, 6)
 ```
 
@@ -179,7 +316,7 @@ Display the first six lines of your data frame.
 For help, see this SO post: https://stackoverflow.com/questions/36709184/build-data-frame-from-multiple-rvest-elements
 
 ```{r}
-rottentomatoes.get_movies <- function(movie_urls) {
+download_contents <- function(movie_urls) {
   pager <- function(page) {
       doc <- read_html(url(page))
       data.frame(
@@ -192,22 +329,36 @@ rottentomatoes.get_movies <- function(movie_urls) {
   }
   return(do.call(rbind, lapply(movie_urls, pager))) 
 }
-movies <- rottentomatoes.get_movies(rottentomatoes.box_office_urls())
-head(movies, 3)
 ```
 
-Write your data to file so you don't need to scrape the site each time you need to access it.
 ```{r}
-write.csv(movies, file = "rottentomatoes_movies.csv", row.names=FALSE)
+rottentomatoes.get_movies <- function(file_name="./rottentomatoes_movies.csv", links) {
+  
+  movies <- if(file.exists(file_name)){
+    print("Loading scores from existing file...")
+    read.csv(file_name)}
+  else {
+    print("Loading scores by downloading contents online...")
+    download_contents(links)}
+ 
+  if (!file.exists(file_name)) {
+    write.csv(movies, file_name, row.names=FALSE)
+  }
+  movies
+}
 ```
 
+```{r}
+movies <- rottentomatoes.get_movies(links = links)
+head(movies, 6)
+```
 (c) Create a Cleveland dot plot of tomatometer scores.
-```{r fig.height=4, fig.width=3}
+```{r}
 # create a theme for dot plots, which can be reused
 theme_dotplot <- theme_bw(12) +
     theme(
         plot.title = element_text(size = rel(1)),
-        axis.text.y = element_text(size = rel(.75)),
+        axis.text.y = element_text(size = rel(.6)),
         axis.ticks.y = element_blank(),
         axis.title.x = element_text(size = rel(.75)),
         panel.grid.major.x = element_line(size = 0.2),
@@ -229,8 +380,19 @@ movies %>%
     ggtitle("Movies ranked by tomatometer score")
 ```
 
+```{r}
+ggplot(movies, 
+       aes(x=fct_reorder(title, tomatometer), 
+           y=tomatometer)) + 
+  geom_point() + 
+  scale_y_continuous(labels = scales::percent_format(1)) + 
+  xlab("name") + 
+  coord_flip() + 
+  theme(axis.text.y = element_text(size = 6))
+```
+
 (d) Create a Cleveland dot plot of tomatometer *and* audience scores on the same graph, one color for each. Sort by audience score.
-```{r fig.height=4, fig.width=3}
+```{r}
 
 movies %>%
   # Replace NA score with -1, which causes those movies to be sorted at the bottom of the plot
@@ -253,7 +415,11 @@ movies %>%
 
 (e) Run your code again for the weekend of July 5 - July 7, 2019. Use **plotly** to create a scatterplot of audience score vs. tomatometer score with the ability to hover over the point to see the film title.
 ```{r}
-movies_july05_july07 <- rottentomatoes.get_movies(rottentomatoes.box_office_urls(rank_id=12))
+# movies_july05_july07 <- rottentomatoes.get_movies(rottentomatoes.box_office_urls(rank_id=12))
+
+movies_july05_july07 <- rottentomatoes.get_movies(
+  file_name = "./movies_jul5_jul7.csv",
+  links = get_all_links_by_weekend("Jul 05 - Jul 07"))
 ```
 
 ```{r}
@@ -262,8 +428,21 @@ g <- ggplot(movies_july05_july07, aes(audience_score, tomatometer, text = paste(
       expand_limits(x = 0, y = 0) + 
       ggtitle("Movie scores") +
       theme_dotplot
-ggplotly(g, height = 500, width = 500)
+interactive_plot <- ggplotly(g, height = 500, width = 500)
+interactive_plot
 ```
+```{r}
+# using online session
+api_key="DiEMvM80IDIc6kfHHuiU"
+Sys.setenv("plotly_username"="iamironmanx")
+Sys.setenv("plotly_api_key"=api_key)
+options(browser = 'false')
+url <- plotly::api_create(interactive_plot, 
+                          filename = "scores_scatter_plot")
+url$web_url
+```
+
+Now we can visit the plot online using the link <`r url$web_url`>.
 
 ### 3. Weather
 
@@ -334,16 +513,37 @@ weather %>%
 
 (e) Describe noteworthy features of the data, using the "Movie ratings" example on page 82 (last page of Section 5.3) as a guide.  
 
+1. The wind seldom blew from the southeast (90 to 180 degrees) side.
+2. When the wind blew from the northeast side (0 to 90 degrees) or southwest side (180 to 270 degrees), the relative humidity seemed to be high. When the wind blew from the northwest side (270 to 360 degrees), the relative humidity would be low and mainly distributed around 40%.
+3. The relative humidty was usually higher than 20% no matter which direction the wind blew from.
+4. When the wind blew from the north and the south, the humidity would be more likely to reach 100%, meaning that it would rain.
+5. There was no deterministic relationship between the wind direction and humidity, no matter where the wind blew from, the relative humidity might cover the whole range from 0 to 1.
+
 (f) Draw a scatterplot of `humid` vs. `temp`. Why does the plot have diagonal lines?
 
 ```{r}
-weather %>%
-  ggplot(aes(humid, temp)) +
+ggplot(weather, aes(x=temp, y=humid / 100)) +
   geom_point(color = "blue", alpha = .1, stroke = 0) + 
-  xlab("humidity") +
-  ylab("temperatur") +
-  ggtitle("Scatterplot of humidity/temperature of weather")
+  scale_y_continuous(labels=scales::percent) +
+  ylab("Relative Humidity") + 
+  xlab("Temperature") +
+  ggtitle("Scatterplot of humidity vs. temperature")
 ```
+
+The reason is that relative humidity can be calculated using a approximate function whose inputs are temperature and dewp (dew point). The exact formula can be found in this link <http://bmcnoldy.rsmas.miami.edu/Humidity.html>. Given a dewp, the relative humidity has a negative correlation with temperature. So all these diagonal lines come from the left-upper side to the right-bottom side.
+
+It's more easily to observe the diagonal lines if we sample the dataset by letting the "dewp" variable fall into a certain range, e.g., from 20 to 30.
+
+```{r}
+ggplot(weather %>% filter(dewp > 20 & dewp < 30), 
+       aes(x=temp, y=humid / 100)) +
+  geom_point(color = "blue", alpha = .1, stroke = 0) + 
+  scale_y_continuous(labels=scales::percent) +
+  ylab("Relative Humidity") + 
+  xlab("Temperature") +
+  ggtitle("Sampled scatterplot of humidity vs. temperature (20 < dewp < 30)")
+```
+
 
 (g) Draw a scatterplot matrix of the continuous variables in the `weather` dataset. Which pairs of variables are strongly positively associated and which are strongly negatively associated?
 
@@ -354,6 +554,14 @@ weather %>%
   sample_n(1000) %>%
   splom()
 ```
+
+```{r}
+pair_matrix <- GGally::ggpairs(weather %>% 
+                                 filter(wind_speed < 1000), 
+                columns = 6:14)
+pair_matrix
+```
+
 Strong positive correlation exists between `temp` and `dewp` variables, the higher temperature the higher dew point, and the lower the temperature, the lower the dew point. This is a well known physics phenomenon.
 
 Negative correlation can be noticed between humidity and visibility. As humidity increases, the weather becomes foggy or rainy, which decreases visibility.
@@ -370,3 +578,11 @@ my_cols <- c("red", "blue", "green")
 splom(w, col = my_cols[w$origin])
 ```
 
+```{r fig.height=8, fig.width=10}
+GGally::ggpairs(weather %>% filter(wind_speed < 1000), 
+                columns = 6:14, 
+                lower = list(continuous=GGally::wrap("points", alpha = 0.1)),
+                mapping = ggplot2::aes(colour = origin))
+```
+
+JFK airport seems to be more humid than the other two and has higher wind speed. The main patterns of each pair of variables don't seem to vary among different pairs.
