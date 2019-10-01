@@ -1,5 +1,5 @@
 ---
-author: Chao Huang (XXX) and Kliment Mamykin (km2770)
+author: Chao Huang (ch3474) and Kliment Mamykin (km2770)
 title: "EDAV Fall 2019 PSet 2"
 output: 
   pdf_document: 
