@@ -1,5 +1,5 @@
 ---
-author:
+author: Chao Huang (XXX) and Kliment Mamykin (km2770)
 title: "EDAV Fall 2019 PSet 2"
 output: 
   pdf_document: 
@@ -103,7 +103,7 @@ ggplot(stack_Q3, aes(x=Q3)) +
   facet_wrap(~ Q2, nrow = 2) + 
   coord_flip() + 
   xlab("Age") + 
-  ylab("proportion") + 
+  ylab("Proportion") + 
   labs(fill = "R using time",
       title = paste("R using time proportion within",
                 "different age and gender groups")) + 
@@ -255,10 +255,8 @@ download_contents <- function(movie_urls) {
 rottentomatoes.get_movies <- function(file_name="./rottentomatoes_movies.csv", links) {
   
   movies <- if(file.exists(file_name)){
-    print("Loading scores from existing file...")
     read.csv(file_name)}
   else {
-    print("Loading scores by downloading contents online...")
     download_contents(links)}
  
   if (!file.exists(file_name)) {
@@ -275,10 +273,10 @@ head(movies, 6)
 (c) Create a Cleveland dot plot of tomatometer scores.
 ```{r fig.height=8, fig.width=6}
 # create a theme for dot plots, which can be reused
-theme_dotplot <- theme_bw(12) +
+theme_dotplot <- theme_bw(16) +
     theme(
-        plot.title = element_text(size = rel(1)),
-        axis.text.y = element_text(size = rel(.7)),
+        plot.title = element_text(size = rel(1.25)),
+        axis.text.y = element_text(size = rel(1)),
         axis.ticks.y = element_blank(),
         axis.title.x = element_text(size = rel(.75)),
         panel.grid.major.x = element_line(size = 0.2),
@@ -313,8 +311,7 @@ movies %>%
     geom_point() +
     scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, 20)) +
     theme_dotplot + theme(
-      legend.position = "top",
-      legend.title = element_text(size = rel(0.75))
+      legend.position = "top"
     ) + 
     xlab("") +
     ylab("") +
@@ -436,8 +433,8 @@ ggplot(weather, aes(x=temp, y=humid / 100)) +
 weather %>%
   ggplot(aes(humid, temp)) +
   geom_point(color = "blue", alpha = .1, stroke = 0) + 
-  xlab("humidity") +
-  ylab("temperatur") +
+  xlab("Humidity") +
+  ylab("Temperature") +
   ggtitle("Scatterplot of humidity/temperature of weather")
 ```
 
