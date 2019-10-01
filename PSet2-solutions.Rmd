@@ -50,8 +50,7 @@ useR2016 %>%
     coord_flip() + 
     theme_bw(14) +
     theme(
-      plot.title = element_text(size = rel(0.9)),
-      # plot.caption = element_text(hjust = 0)
+      plot.title = element_text(size = rel(0.9))
     ) + 
     labs(title = "What would be your preferred medium for R community news?",
        caption = "Source\ndataset: userR2016\npackage: forwards\nurl: https://www.rdocumentation.org/packages/forwards/versions/0.1.1/topics/useR2016", 
@@ -68,8 +67,7 @@ useR2016 %>%
     geom_col() + 
     theme_bw(14) +
     theme(
-      plot.title = element_text(size = rel(1)),
-      plot.caption = element_text(hjust = 0)
+      plot.title = element_text(size = rel(1))
     ) + 
     labs(title = "How long have you been using R?",
        caption = "Source\ndataset: userR2016\npackage: forwards\nurl: https://www.rdocumentation.org/packages/forwards/versions/0.1.1/topics/useR2016", 
@@ -77,39 +75,12 @@ useR2016 %>%
 ```
 
 (c) Create a horizontal stacked bar chart showing the proportion of respondents for each level of Q11 who are over 35 vs. 35 or under. Use a descriptive title. 
-
 ```{r}
-useR2016 %>%
-  mutate(Q11 = ifelse(is.na(Q11), "NA", as.character(Q11))) %>%
-  mutate(Q11 = fct_relevel(Q11, c("NA"), after = 4)) %>%
-  mutate(Q11 = fct_relevel(Q11, c("> 10 years"), after = 3)) %>%
-  mutate(Q3 = ifelse(is.na(Q3), "NA", as.character(Q3))) %>%
-  mutate(Q3 = fct_relevel(Q3, c("> 35"), after = 1)) %>%
-  group_by(Q11, Q3) %>%
-  summarise(Freq = n()) %>%
-  ungroup() %>%
-  ggplot(aes(fct_rev(Q11), Freq, fill = Q3)) +
-    geom_col() + 
-    coord_flip() +
-    theme_bw(14) +
-    theme(
-      plot.title = element_text(size = rel(1)),
-      plot.caption = element_text(hjust = 0)
-    ) + 
-    labs(title = "Breakdown of R usage by age",
-       x = "", y = "respondents")
-```
-
-```{r}
-# I think this plot should show proportions and the x-axis
-# should be ordered by years as shown by the example
-# And should we remove all NA?
-
 stack_Q11 <- useR2016 %>% select(Q3, Q11) %>% 
   filter(! is.na(Q3) & ! is.na(Q11))
 
-ggplot(stack_Q11, aes(x=Q11)) + 
-  geom_bar(aes(y=(..count..), fill = Q3), position = "fill") + 
+ggplot(stack_Q11, aes(x=fct_rev(Q11))) + 
+  geom_bar(aes(y=(..count..), fill = fct_rev(Q3)), position = "fill") + 
   coord_flip() + 
   scale_y_continuous(labels = scales::number_format(accuracy = 0.01)) + 
   ylab("Proportion") + 
@@ -122,38 +93,13 @@ ggplot(stack_Q11, aes(x=Q11)) +
 (d) Create a horizontal stacked bar chart showing the proportional breakdown of Q11 for each level of Q3, faceted on Q2. Use a descriptive title. 
 
 ```{r}
-useR2016 %>%
-  mutate(Q11 = ifelse(is.na(Q11), "NA", as.character(Q11))) %>%
-  mutate(Q11 = fct_relevel(Q11, c("NA"), after = 4)) %>%
-  mutate(Q11 = fct_relevel(Q11, c("> 10 years"), after = 3)) %>%
-  mutate(Q3 = ifelse(is.na(Q3), "NA", as.character(Q3))) %>%
-  mutate(Q3 = fct_relevel(Q3, c("> 35"), after = 1)) %>%
-  mutate(Q2 = fct_relevel(Q2, c("Women"), after = 1)) %>%
-  group_by(Q11, Q3, Q2) %>%
-  summarise(Freq = n()) %>%
-  ungroup() %>%
-  ggplot(aes(fct_rev(Q11), Freq, fill = Q3)) +
-    geom_col() + 
-    coord_flip() +
-    facet_wrap(~Q2) +
-    theme_bw(14) +
-    theme(
-      plot.title = element_text(size = rel(1)),
-      plot.caption = element_text(hjust = 0)
-    ) + 
-    labs(title = "Breakdown of R usage by age for gender",
-       x = "", y = "respondents")
-```
-
-```{r}
-# Same issues like question.c
 stack_Q3 <- useR2016 %>% select(Q2, Q3, Q11) %>% 
   filter(! is.na(Q11) & ! is.na(Q3)) %>% 
   filter(Q2 != "Non-Binary/Unknown")
 
-ggplot(stack_Q3, aes(x=fct_rev(Q3))) + 
+ggplot(stack_Q3, aes(x=Q3)) + 
   geom_bar(aes(y=(..count..), 
-               fill=fct_rev(Q11)), position = "fill") +
+               fill=Q11), position = "fill") +
   facet_wrap(~ Q2, nrow = 2) + 
   coord_flip() + 
   xlab("Age") + 
@@ -195,19 +141,6 @@ add_line_breaks(long_str, 50)
 ```
 
 (f) Create a horizontal bar chart that shows the percentage of positive responses for `Q13 - Q13_F`. Use your function from part (e) to add line breaks to the responses. Your graph should have one bar each for `Q13 - Q13_F`.
-
-```{r}
-# Work in progress....
-useR2016 %>%
-  select(Q13, Q13_B, Q13_C, Q13_D, Q13_E, Q13_F) %>%
-  gather(key = "Question", value = "Label", Q13, Q13_B, Q13_C, Q13_D, Q13_E, Q13_F) %>%
-  group_by(Question, Label) %>%
-  summarize(Freq = n()) %>%
-  mutate(prop = Freq/sum(Freq)) %>%
-  ungroup() %>%
-  ggplot(aes(Question, Freq)) +
-    geom_col()
-```
 
 ```{r}
 base_df <- useR2016 %>% select(matches("Q13"))
@@ -252,18 +185,6 @@ paths_allowed(paths = "https://www.rottentomatoes.com/browse/box-office/", warn 
 ```
 
 ```{r}
-rottentomatoes.box_office_urls <- function(rank_id = 0, country = 'us') {
-  read_html(sprintf("https://www.rottentomatoes.com/browse/box-office/?rank_id=%d&country=%s", rank_id, country)) %>%
-    html_node("table.center.table") %>%
-    html_nodes("td > a") %>%
-    html_attr("href") %>%
-    map(~ str_c("https://www.rottentomatoes.com", .)) %>%
-    as.character
-}
-```
-
-
-```{r}
 get_all_links_by_weekend <- function (weekend="Last Weekend") {
   webpage <- read_html("https://www.rottentomatoes.com/browse/box-office/")
   select_forms <- webpage %>% 
@@ -303,7 +224,6 @@ get_all_links_by_weekend <- function (weekend="Last Weekend") {
 
 ```{r}
 links <- get_all_links_by_weekend()
-# or links <- rottentomatoes.box_office_urls()
 head(links, 6)
 ```
 
@@ -353,12 +273,12 @@ movies <- rottentomatoes.get_movies(links = links)
 head(movies, 6)
 ```
 (c) Create a Cleveland dot plot of tomatometer scores.
-```{r}
+```{r fig.height=8, fig.width=6}
 # create a theme for dot plots, which can be reused
 theme_dotplot <- theme_bw(12) +
     theme(
         plot.title = element_text(size = rel(1)),
-        axis.text.y = element_text(size = rel(.6)),
+        axis.text.y = element_text(size = rel(.7)),
         axis.ticks.y = element_blank(),
         axis.title.x = element_text(size = rel(.75)),
         panel.grid.major.x = element_line(size = 0.2),
@@ -380,19 +300,8 @@ movies %>%
     ggtitle("Movies ranked by tomatometer score")
 ```
 
-```{r}
-ggplot(movies, 
-       aes(x=fct_reorder(title, tomatometer), 
-           y=tomatometer)) + 
-  geom_point() + 
-  scale_y_continuous(labels = scales::percent_format(1)) + 
-  xlab("name") + 
-  coord_flip() + 
-  theme(axis.text.y = element_text(size = 6))
-```
-
 (d) Create a Cleveland dot plot of tomatometer *and* audience scores on the same graph, one color for each. Sort by audience score.
-```{r}
+```{r fig.height=8, fig.width=6}
 
 movies %>%
   # Replace NA score with -1, which causes those movies to be sorted at the bottom of the plot
@@ -415,8 +324,6 @@ movies %>%
 
 (e) Run your code again for the weekend of July 5 - July 7, 2019. Use **plotly** to create a scatterplot of audience score vs. tomatometer score with the ability to hover over the point to see the film title.
 ```{r}
-# movies_july05_july07 <- rottentomatoes.get_movies(rottentomatoes.box_office_urls(rank_id=12))
-
 movies_july05_july07 <- rottentomatoes.get_movies(
   file_name = "./movies_jul5_jul7.csv",
   links = get_all_links_by_weekend("Jul 05 - Jul 07"))
@@ -442,7 +349,7 @@ url <- plotly::api_create(interactive_plot,
 url$web_url
 ```
 
-Now we can visit the plot online using the link <`r url$web_url`>.
+Because the PDF file can not show the interactive plot, we include the above link for reference.
 
 ### 3. Weather
 
@@ -459,11 +366,9 @@ For parts (a) - (d) draw four plots of `wind_dir` vs. `humid` as indicated. For 
 
 ```{r}
 weather %>%
-  #sample_n(10000) %>%
   ggplot(aes(wind_dir, humid)) +
   geom_point(color = "blue", size = 1.5, alpha = .1, stroke = 0, position = "jitter") + 
   scale_x_continuous(limits = c(0, 360), breaks = seq(0, 360, 30)) +
-  #coord_polar(theta = "x", direction = 1, start = 0) +
   xlab("wind direction") +
   ylab("humidity") +
   ggtitle("Scatterplot of wind/humididy of weather")
@@ -477,7 +382,6 @@ weather %>%
   geom_point(color = "blue", size = 1.5, alpha = .1, stroke = 0, position = "jitter") + 
   scale_x_continuous(limits = c(0, 360), breaks = seq(0, 360, 30)) +
   geom_density2d(bins = 10, color = "black") +
-  #coord_polar(theta = "x", direction = 1, start = 0) +
   xlab("wind direction") +
   ylab("humidity") +
   ggtitle("Scatterplot + density of wind/humididy of weather")
@@ -491,7 +395,6 @@ weather %>%
   scale_x_continuous(limits = c(0, 360), breaks = seq(0, 360, 30)) +
   geom_hex(binwidth = c(20, 10)) +
   scale_fill_viridis_c() +
-  #coord_polar(theta = "x", direction = 1, start = 0) +
   xlab("wind direction") +
   ylab("humidity") +
   ggtitle("Hexagonal heatmap of wind/humididy of weather")
@@ -505,7 +408,6 @@ weather %>%
   scale_x_continuous(limits = c(0, 360), breaks = seq(0, 360, 30)) +
   geom_bin2d(binwidth = c(10, 5)) +
   scale_fill_viridis_c() +
-  #coord_polar(theta = "x", direction = 1, start = 0) +
   xlab("wind direction") +
   ylab("humidity") +
   ggtitle("Square heatmap of wind/humididy of weather")
@@ -530,6 +432,15 @@ ggplot(weather, aes(x=temp, y=humid / 100)) +
   ggtitle("Scatterplot of humidity vs. temperature")
 ```
 
+```{r}
+weather %>%
+  ggplot(aes(humid, temp)) +
+  geom_point(color = "blue", alpha = .1, stroke = 0) + 
+  xlab("humidity") +
+  ylab("temperatur") +
+  ggtitle("Scatterplot of humidity/temperature of weather")
+```
+
 The reason is that relative humidity can be calculated using a approximate function whose inputs are temperature and dewp (dew point). The exact formula can be found in this link <http://bmcnoldy.rsmas.miami.edu/Humidity.html>. Given a dewp, the relative humidity has a negative correlation with temperature. So all these diagonal lines come from the left-upper side to the right-bottom side.
 
 It's more easily to observe the diagonal lines if we sample the dataset by letting the "dewp" variable fall into a certain range, e.g., from 20 to 30.
@@ -547,42 +458,27 @@ ggplot(weather %>% filter(dewp > 20 & dewp < 30),
 
 (g) Draw a scatterplot matrix of the continuous variables in the `weather` dataset. Which pairs of variables are strongly positively associated and which are strongly negatively associated?
 
-```{r fig.height=7, fig.width=7}
-library(lattice)
-weather %>% 
-  select(month, temp, dewp, humid, precip, pressure, visib, wind_dir, wind_speed) %>% 
-  sample_n(1000) %>%
-  splom()
-```
+Since there is a outlier with "wind_speed" as large as 1000, we remove it so that we can observe the underlying patterns better. Also we downsample the data to contain only 2000 samples, in order to accelerate the speed of plotting and reveal most informative patterns.
 
-```{r}
-pair_matrix <- GGally::ggpairs(weather %>% 
-                                 filter(wind_speed < 1000), 
-                columns = 6:14)
+```{r fig.height=8, fig.width=8}
+pair_matrix <- GGally::ggpairs(weather %>% filter(wind_speed < 1000) %>% sample_n(2000), 
+                columns = 6:14,
+                lower = list(continuous=GGally::wrap("points", alpha = 0.3)))
 pair_matrix
 ```
 
-Strong positive correlation exists between `temp` and `dewp` variables, the higher temperature the higher dew point, and the lower the temperature, the lower the dew point. This is a well known physics phenomenon.
+Strong positive correlation exists between `temp` and `dewp` variables, the higher temperature the higher dew point, and the lower the temperature, the lower the dew point. This is a well known physics phenomenon. There are also strong positive correlation exists between `wind_speed` and `wind_gust` variables, since strong wind gusts always bring up the wind speed.
 
 Negative correlation can be noticed between humidity and visibility. As humidity increases, the weather becomes foggy or rainy, which decreases visibility.
 
 
 (h) Color the points by `origin`.  Do any new patterns emerge?
 
-```{r fig.height=7, fig.width=7}
-w <- weather %>% 
-  mutate(origin = as.factor(origin)) %>%
-  select(origin, month, temp, dewp, humid, precip, pressure, visib, wind_dir, wind_speed) %>% 
-  sample_n(500)
-my_cols <- c("red", "blue", "green")
-splom(w, col = my_cols[w$origin])
-```
-
-```{r fig.height=8, fig.width=10}
-GGally::ggpairs(weather %>% filter(wind_speed < 1000), 
+```{r fig.height=8, fig.width=8}
+GGally::ggpairs(weather %>% filter(wind_speed < 1000) %>% sample_n(2000), 
                 columns = 6:14, 
-                lower = list(continuous=GGally::wrap("points", alpha = 0.1)),
+                lower = list(continuous=GGally::wrap("points", alpha = 0.2)),
                 mapping = ggplot2::aes(colour = origin))
 ```
 
-JFK airport seems to be more humid than the other two and has higher wind speed. The main patterns of each pair of variables don't seem to vary among different pairs.
+JFK airport seems to be more humid than the other two. The wind directions are also different for these three airports. The main patterns of each pair of variables don't seem to vary among different pairs.
