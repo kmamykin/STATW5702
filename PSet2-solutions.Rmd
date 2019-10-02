@@ -53,7 +53,9 @@ useR2016 %>%
       plot.title = element_text(size = rel(0.9))
     ) + 
     labs(title = "What would be your preferred medium for R community news?",
-       caption = "Source\ndataset: userR2016\npackage: forwards\nurl: https://www.rdocumentation.org/packages/forwards/versions/0.1.1/topics/useR2016", 
+       caption = "Source\ndataset: userR2016
+       package: forwards
+       url: https://www.rdocumentation.org/packages/forwards/versions/0.1.1/topics/useR2016", 
        x = "", y = "respondents")
 ```
 
@@ -70,7 +72,10 @@ useR2016 %>%
       plot.title = element_text(size = rel(1))
     ) + 
     labs(title = "How long have you been using R?",
-       caption = "Source\ndataset: userR2016\npackage: forwards\nurl: https://www.rdocumentation.org/packages/forwards/versions/0.1.1/topics/useR2016", 
+      caption = "Source
+      dataset: userR2016
+      package: forwards
+      url: https://www.rdocumentation.org/packages/forwards/versions/0.1.1/topics/useR2016", 
        x = "", y = "respondents")
 ```
 
@@ -136,8 +141,11 @@ add_line_breaks <- function(vec_str, len) {
 A simple demo,
 
 ```{r}
-long_str <- "We hold these truths to be self-evident, that all men are created equal, that they are endowed by their Creator with certain unalienable Rights, that among these are Life, Liberty and the pursuit of Happiness."
-add_line_breaks(long_str, 50)
+long_str <- paste("We hold these truths to be self-evident, that all ",
+                  "men are created equal, that they are endowed by their",
+                  "Creator with certain unalienable Rights, that among these ",
+                  "are Life, Liberty and the pursuit of Happiness.")
+cat(add_line_breaks(long_str, 50))
 ```
 
 (f) Create a horizontal bar chart that shows the percentage of positive responses for `Q13 - Q13_F`. Use your function from part (e) to add line breaks to the responses. Your graph should have one bar each for `Q13 - Q13_F`.
@@ -158,7 +166,7 @@ pos_count <- inner_join(x = pos_response, y = countNA_Q13, "question") %>%
   mutate(folded=factor(add_line_breaks(posResponse, 20)))
 ```
 
-```{r}
+```{r fig.height=4, fig.width=7}
 ggplot(pos_count) + 
   geom_col(aes(x=fct_reorder(folded, percentage), 
                y=percentage)) + 
@@ -241,8 +249,13 @@ download_contents <- function(movie_urls) {
       doc <- read_html(url(page))
       data.frame(
           title = doc %>% html_node("div.score_panel > h1") %>% html_text() %>% as.character,
-          tomatometer = doc %>% html_node("#tomato_meter_link") %>% html_text() %>% str_trim() %>% str_replace("%","") %>% as.double,
-          audience_score = doc %>% html_node("div.audience-score > h2") %>% html_text() %>% str_trim() %>% str_replace("%","") %>% as.double,
+          
+          tomatometer = doc %>% html_node("#tomato_meter_link") %>% 
+            html_text() %>% str_trim() %>% str_replace("%","") %>% as.double,
+          
+          audience_score = doc %>% html_node("div.audience-score > h2") %>% 
+            html_text() %>% str_trim() %>% str_replace("%","") %>% as.double,
+          
           url = page,
           stringsAsFactors=FALSE
       )
@@ -276,7 +289,7 @@ head(movies, 6)
 theme_dotplot <- theme_bw(16) +
     theme(
         plot.title = element_text(size = rel(1.25)),
-        axis.text.y = element_text(size = rel(1)),
+        axis.text.y = element_text(size = rel(0.8)),
         axis.ticks.y = element_blank(),
         axis.title.x = element_text(size = rel(.75)),
         panel.grid.major.x = element_line(size = 0.2),
@@ -307,15 +320,17 @@ movies %>%
   mutate(tomatometer=ifelse(is.na(tomatometer), -1, tomatometer)) %>%
   mutate(audience_score=ifelse(is.na(audience_score), -1, audience_score)) %>%
   gather(key = "Score", value = "value", tomatometer, audience_score) %>%
-  ggplot(aes(x = value, y = fct_reorder2(title, Score=='audience_score', value, .desc = FALSE), color = Score)) +
-    geom_point() +
-    scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, 20)) +
-    theme_dotplot + theme(
-      legend.position = "top"
-    ) + 
-    xlab("") +
-    ylab("") +
-    ggtitle("Movies scores")
+  ggplot(aes(x = value, 
+             y = fct_reorder2(title, Score=='audience_score', value, .desc = FALSE), 
+             color = Score)) +
+    
+  geom_point() +
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, 20)) +
+  theme_dotplot + 
+  theme(legend.position = "top") + 
+  xlab("") +
+  ylab("") +
+  ggtitle("Movies scores")
 ```
 
 
@@ -343,36 +358,18 @@ For parts (a) - (d) draw four plots of `wind_dir` vs. `humid` as indicated. For 
 
 ```{r}
 weather %>%
-<<<<<<< HEAD
-  ggplot(aes(humid, wind_dir)) +
-  geom_point(color = "blue", size = 1.5, alpha = .1, stroke = 0, position = "jitter") + 
-  scale_y_continuous(breaks = seq(0, 360, 30)) +
-  xlab("humidity") +
-  ylab("wind direction") +
-  ggtitle("Scatterplot of wind direction vs humididy of weather")
-=======
-  ggplot(aes(y=wind_dir, x=humid)) +
-  geom_point(color = "blue", size = 1.5, alpha = .1, stroke = 0, position = "jitter") + 
-  scale_y_continuous(limits = c(0, 360), breaks = seq(0, 360, 30)) +
-  ylab("wind direction") +
-  xlab("humidity") +
-  ggtitle("Scatterplot of wind/humididy of weather")
->>>>>>> 4092e45e419933341d74cb1634ba77dd439004fb
+ggplot(aes(y=wind_dir, x=humid)) +
+geom_point(color = "blue", size = 1.5, alpha = .1, stroke = 0, position = "jitter") + 
+scale_y_continuous(limits = c(0, 360), breaks = seq(0, 360, 30)) +
+ylab("wind direction") +
+xlab("humidity") +
+ggtitle("Scatterplot of wind/humididy of weather")
 ```
 
 (b) Points with alpha blending + density estimate contour lines
 
 ```{r}
 weather %>%
-<<<<<<< HEAD
-  ggplot(aes(humid, wind_dir)) +
-  geom_point(color = "blue", size = 1.5, alpha = .1, stroke = 0, position = "jitter") + 
-  scale_y_continuous(breaks = seq(0, 360, 30)) +
-  geom_density2d(bins = 10, color = "black") +
-  xlab("humidity") +
-  ylab("wind direction") +
-  ggtitle("Scatterplot + density of wind direction vs humididy of weather")
-=======
   ggplot(aes(y=wind_dir, x=humid)) +
   geom_point(color = "blue", size = 1.5, alpha = .1, stroke = 0, position = "jitter") + 
   scale_y_continuous(limits = c(0, 360), breaks = seq(0, 360, 30)) +
@@ -380,22 +377,12 @@ weather %>%
   ylab("wind direction") +
   xlab("humidity") +
   ggtitle("Scatterplot + density of wind/humididy of weather")
->>>>>>> 4092e45e419933341d74cb1634ba77dd439004fb
 ```
 
 (c) Hexagonal heatmap of bin counts
 
 ```{r}
 weather %>%
-<<<<<<< HEAD
-  ggplot(aes(humid, wind_dir)) +
-  scale_y_continuous(breaks = seq(0, 360, 30)) +
-  geom_hex(binwidth = c(5, 30)) +
-  scale_fill_viridis_c() +
-  xlab("humidity") +
-  ylab("wind direction") +
-  ggtitle("Hexagonal heatmap of wind vs humididy of weather")
-=======
   ggplot(aes(y=wind_dir, x=humid)) +
   scale_y_continuous(limits = c(0, 360), breaks = seq(0, 360, 30)) +
   geom_hex(binwidth = c(10, 20)) +
@@ -403,22 +390,12 @@ weather %>%
   ylab("wind direction") +
   xlab("humidity") +
   ggtitle("Hexagonal heatmap of wind/humididy of weather")
->>>>>>> 4092e45e419933341d74cb1634ba77dd439004fb
 ```
 
 (d) Square heatmap of bin counts 
 
 ```{r}
 weather %>%
-<<<<<<< HEAD
-  ggplot(aes(humid, wind_dir)) +
-  scale_y_continuous(breaks = seq(0, 360, 30)) +
-  geom_bin2d(binwidth = c(5, 30)) +
-  scale_fill_viridis_c() +
-  xlab("humidity") +
-  ylab("wind direction") +
-  ggtitle("Square heatmap of wind vs humididy of weather")
-=======
   ggplot(aes(y=wind_dir, x=humid)) +
   scale_y_continuous(limits = c(0, 360), breaks = seq(0, 360, 30)) +
   geom_bin2d(binwidth = c(5,10)) +
@@ -426,7 +403,6 @@ weather %>%
   ylab("wind direction") +
   xlab("humidity") +
   ggtitle("Square heatmap of wind/humididy of weather")
->>>>>>> 4092e45e419933341d74cb1634ba77dd439004fb
 ```
 
 (e) Describe noteworthy features of the data, using the "Movie ratings" example on page 82 (last page of Section 5.3) as a guide.  
