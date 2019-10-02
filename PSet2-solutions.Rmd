@@ -343,18 +343,28 @@ For parts (a) - (d) draw four plots of `wind_dir` vs. `humid` as indicated. For 
 
 ```{r}
 weather %>%
+<<<<<<< HEAD
   ggplot(aes(humid, wind_dir)) +
   geom_point(color = "blue", size = 1.5, alpha = .1, stroke = 0, position = "jitter") + 
   scale_y_continuous(breaks = seq(0, 360, 30)) +
   xlab("humidity") +
   ylab("wind direction") +
   ggtitle("Scatterplot of wind direction vs humididy of weather")
+=======
+  ggplot(aes(y=wind_dir, x=humid)) +
+  geom_point(color = "blue", size = 1.5, alpha = .1, stroke = 0, position = "jitter") + 
+  scale_y_continuous(limits = c(0, 360), breaks = seq(0, 360, 30)) +
+  ylab("wind direction") +
+  xlab("humidity") +
+  ggtitle("Scatterplot of wind/humididy of weather")
+>>>>>>> 4092e45e419933341d74cb1634ba77dd439004fb
 ```
 
 (b) Points with alpha blending + density estimate contour lines
 
 ```{r}
 weather %>%
+<<<<<<< HEAD
   ggplot(aes(humid, wind_dir)) +
   geom_point(color = "blue", size = 1.5, alpha = .1, stroke = 0, position = "jitter") + 
   scale_y_continuous(breaks = seq(0, 360, 30)) +
@@ -362,12 +372,22 @@ weather %>%
   xlab("humidity") +
   ylab("wind direction") +
   ggtitle("Scatterplot + density of wind direction vs humididy of weather")
+=======
+  ggplot(aes(y=wind_dir, x=humid)) +
+  geom_point(color = "blue", size = 1.5, alpha = .1, stroke = 0, position = "jitter") + 
+  scale_y_continuous(limits = c(0, 360), breaks = seq(0, 360, 30)) +
+  geom_density2d(bins = 10, color = "black") +
+  ylab("wind direction") +
+  xlab("humidity") +
+  ggtitle("Scatterplot + density of wind/humididy of weather")
+>>>>>>> 4092e45e419933341d74cb1634ba77dd439004fb
 ```
 
 (c) Hexagonal heatmap of bin counts
 
 ```{r}
 weather %>%
+<<<<<<< HEAD
   ggplot(aes(humid, wind_dir)) +
   scale_y_continuous(breaks = seq(0, 360, 30)) +
   geom_hex(binwidth = c(5, 30)) +
@@ -375,12 +395,22 @@ weather %>%
   xlab("humidity") +
   ylab("wind direction") +
   ggtitle("Hexagonal heatmap of wind vs humididy of weather")
+=======
+  ggplot(aes(y=wind_dir, x=humid)) +
+  scale_y_continuous(limits = c(0, 360), breaks = seq(0, 360, 30)) +
+  geom_hex(binwidth = c(10, 20)) +
+  scale_fill_viridis_c() +
+  ylab("wind direction") +
+  xlab("humidity") +
+  ggtitle("Hexagonal heatmap of wind/humididy of weather")
+>>>>>>> 4092e45e419933341d74cb1634ba77dd439004fb
 ```
 
 (d) Square heatmap of bin counts 
 
 ```{r}
 weather %>%
+<<<<<<< HEAD
   ggplot(aes(humid, wind_dir)) +
   scale_y_continuous(breaks = seq(0, 360, 30)) +
   geom_bin2d(binwidth = c(5, 30)) +
@@ -388,6 +418,15 @@ weather %>%
   xlab("humidity") +
   ylab("wind direction") +
   ggtitle("Square heatmap of wind vs humididy of weather")
+=======
+  ggplot(aes(y=wind_dir, x=humid)) +
+  scale_y_continuous(limits = c(0, 360), breaks = seq(0, 360, 30)) +
+  geom_bin2d(binwidth = c(5,10)) +
+  scale_fill_viridis_c() +
+  ylab("wind direction") +
+  xlab("humidity") +
+  ggtitle("Square heatmap of wind/humididy of weather")
+>>>>>>> 4092e45e419933341d74cb1634ba77dd439004fb
 ```
 
 (e) Describe noteworthy features of the data, using the "Movie ratings" example on page 82 (last page of Section 5.3) as a guide.  
@@ -401,22 +440,15 @@ weather %>%
 (f) Draw a scatterplot of `humid` vs. `temp`. Why does the plot have diagonal lines?
 
 ```{r}
-ggplot(weather, aes(x=temp, y=humid / 100)) +
-  geom_point(color = "blue", alpha = .1, stroke = 0) + 
-  scale_y_continuous(labels=scales::percent) +
+ggplot(weather, aes(x=temp, y=humid)) +
+  geom_point(color = "blue", alpha = .1, stroke = 0) +
   ylab("Relative Humidity") + 
   xlab("Temperature") +
   ggtitle("Scatterplot of humidity vs. temperature")
 ```
 
-```{r}
-weather %>%
-  ggplot(aes(humid, temp)) +
-  geom_point(color = "blue", alpha = .1, stroke = 0) + 
-  xlab("Humidity") +
-  ylab("Temperature") +
-  ggtitle("Scatterplot of humidity/temperature of weather")
-```
+
+Those diagonal lines going from the left buttom corner to the right upper corner seem to be more siginificant than those going from the left upper corner to the right buttom corner. However, we don't find any reasonable explanations for them, since according in to physical laws, when the dewp is fixed, the relative humidity should have a negative correlation with the temperature. The appearance of these lines may come from the round-off error of the measurements. We will try explaning the diagonal lines going from the left upper corner to the right buttom corner in the following.
 
 The reason is that relative humidity can be calculated using a approximate function whose inputs are temperature and dewp (dew point). The exact formula can be found in this link <http://bmcnoldy.rsmas.miami.edu/Humidity.html>. Given a dewp, the relative humidity has a negative correlation with temperature. So all these diagonal lines come from the left-upper side to the right-bottom side.
 
