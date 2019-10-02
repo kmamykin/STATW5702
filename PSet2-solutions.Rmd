@@ -343,51 +343,51 @@ For parts (a) - (d) draw four plots of `wind_dir` vs. `humid` as indicated. For 
 
 ```{r}
 weather %>%
-  ggplot(aes(wind_dir, humid)) +
+  ggplot(aes(humid, wind_dir)) +
   geom_point(color = "blue", size = 1.5, alpha = .1, stroke = 0, position = "jitter") + 
-  scale_x_continuous(limits = c(0, 360), breaks = seq(0, 360, 30)) +
-  xlab("wind direction") +
-  ylab("humidity") +
-  ggtitle("Scatterplot of wind/humididy of weather")
+  scale_y_continuous(breaks = seq(0, 360, 30)) +
+  xlab("humidity") +
+  ylab("wind direction") +
+  ggtitle("Scatterplot of wind direction vs humididy of weather")
 ```
 
 (b) Points with alpha blending + density estimate contour lines
 
 ```{r}
 weather %>%
-  ggplot(aes(wind_dir, humid)) +
+  ggplot(aes(humid, wind_dir)) +
   geom_point(color = "blue", size = 1.5, alpha = .1, stroke = 0, position = "jitter") + 
-  scale_x_continuous(limits = c(0, 360), breaks = seq(0, 360, 30)) +
+  scale_y_continuous(breaks = seq(0, 360, 30)) +
   geom_density2d(bins = 10, color = "black") +
-  xlab("wind direction") +
-  ylab("humidity") +
-  ggtitle("Scatterplot + density of wind/humididy of weather")
+  xlab("humidity") +
+  ylab("wind direction") +
+  ggtitle("Scatterplot + density of wind direction vs humididy of weather")
 ```
 
 (c) Hexagonal heatmap of bin counts
 
 ```{r}
 weather %>%
-  ggplot(aes(wind_dir, humid)) +
-  scale_x_continuous(limits = c(0, 360), breaks = seq(0, 360, 30)) +
-  geom_hex(binwidth = c(20, 10)) +
+  ggplot(aes(humid, wind_dir)) +
+  scale_y_continuous(breaks = seq(0, 360, 30)) +
+  geom_hex(binwidth = c(5, 30)) +
   scale_fill_viridis_c() +
-  xlab("wind direction") +
-  ylab("humidity") +
-  ggtitle("Hexagonal heatmap of wind/humididy of weather")
+  xlab("humidity") +
+  ylab("wind direction") +
+  ggtitle("Hexagonal heatmap of wind vs humididy of weather")
 ```
 
 (d) Square heatmap of bin counts 
 
 ```{r}
 weather %>%
-  ggplot(aes(wind_dir, humid)) +
-  scale_x_continuous(limits = c(0, 360), breaks = seq(0, 360, 30)) +
-  geom_bin2d(binwidth = c(10, 5)) +
+  ggplot(aes(humid, wind_dir)) +
+  scale_y_continuous(breaks = seq(0, 360, 30)) +
+  geom_bin2d(binwidth = c(5, 30)) +
   scale_fill_viridis_c() +
-  xlab("wind direction") +
-  ylab("humidity") +
-  ggtitle("Square heatmap of wind/humididy of weather")
+  xlab("humidity") +
+  ylab("wind direction") +
+  ggtitle("Square heatmap of wind vs humididy of weather")
 ```
 
 (e) Describe noteworthy features of the data, using the "Movie ratings" example on page 82 (last page of Section 5.3) as a guide.  
