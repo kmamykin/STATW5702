@@ -326,27 +326,7 @@ movies_july05_july07 <- rottentomatoes.get_movies(
   links = get_all_links_by_weekend("Jul 05 - Jul 07"))
 ```
 
-```{r}
-g <- ggplot(movies_july05_july07, aes(audience_score, tomatometer, text = paste("title:", title))) +
-      geom_point(color = "blue", alpha = .4, na.rm = TRUE) + 
-      expand_limits(x = 0, y = 0) + 
-      ggtitle("Movie scores") +
-      theme_dotplot
-interactive_plot <- ggplotly(g, height = 500, width = 500)
-interactive_plot
-```
-```{r}
-# using online session
-api_key="DiEMvM80IDIc6kfHHuiU"
-Sys.setenv("plotly_username"="iamironmanx")
-Sys.setenv("plotly_api_key"=api_key)
-options(browser = 'false')
-url <- plotly::api_create(interactive_plot, 
-                          filename = "scores_scatter_plot")
-url$web_url
-```
-
-Because the PDF file can not show the interactive plot, we include the above link for reference.
+Because the PDF file can not show the interactive plot, the answer is rendered as a separate file Q2e.html and submitted with the assignment.
 
 ### 3. Weather
 

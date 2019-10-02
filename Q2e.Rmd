@@ -1,0 +1,28 @@
+---
+title: "EDAV Fall 2019 PSet 2 - Q2e interactive plot"
+author: "Chao Huang (ch3474) and Kliment Mamykin (km2770)"
+output:
+  html_document:
+    df_print: paged
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+```{r setup, include=FALSE}
+ # keep this chunk in your .Rmd file
+ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+library(tidyverse)
+library(plotly)
+```
+
+
+```{r}
+movies_july05_july07 <- read.csv("./movies_jul5_jul7.csv")
+g <- ggplot(movies_july05_july07, aes(audience_score, tomatometer, text = paste("title:", title))) +
+      geom_point(color = "blue", alpha = .4, na.rm = TRUE) + 
+      expand_limits(x = 0, y = 0) + 
+      ggtitle("Movie scores") 
+ggplotly(g, height = 500, width = 500)
+```
