@@ -82,6 +82,24 @@ Yes, Slope is dependent of Chest pain type.
 
 (b) Combine the four heart disease datasets and create a mosaic plot showing chest pain by sex and location. Describe any patterns.
 
+```{r}
+bind_rows(
+  heart_disease_cl %>% dplyr::select(sex, cp) %>% mutate(location = "cl"),
+  heart_disease_hu %>% dplyr::select(sex, cp) %>% mutate(location = "hu"),
+  heart_disease_ch %>% dplyr::select(sex, cp) %>% mutate(location = "ch"),
+  heart_disease_va %>% dplyr::select(sex, cp) %>% mutate(location = "va")
+) %>%
+  mutate(sex = fct_recode(fct_relevel(sex, "Male"), M = "Male", F = "Female")) %>%
+  mutate(`Chest pain type` = cp) %>%
+  ggplot() +
+  geom_mosaic(aes(x=product(cp, sex, location), fill = `Chest pain type`), divider = ddecker()) +
+  xlab("Sex:Location") +
+  ylab("") + 
+  ggtitle("Is Chest pain type dependent on Sex or Location?")
+```
+The most common chest pain type across sex and location is "asymptomatic", purple color is dominant on the plot, least common is "typical angina".
+VA and Switzelend locations has a relatively small percentage of Females in the dataset. In all locations the number of Males was larger then Females.
+Chest pain type is dependent on both Sex and Location.
 
 ### 4. District 3 Elementary Schools
 
