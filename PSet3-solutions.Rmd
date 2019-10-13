@@ -17,6 +17,7 @@ library(tidyverse)
 library(dplyr)
 library(readxl)
 library(HH)
+library(ggmosaic)
 ```
     
 ### 1. Coal Emissions
@@ -44,6 +45,40 @@ Data: four data frames that begin with `heart_disease` in the **ucidata** packag
 Packages: You may use **vcd** or **ggmosaic**.
 
 (a) Create three mosaic plots, each involving two categorical variables from `heart_disease_cl` and interpret the plots. (You may reuse variables, for example X ~ Y and X ~ Z).
+
+```{r}
+heart_disease_cl %>%
+  mutate(Sex = fct_relevel(sex, "Male"), `Chest pain type` = cp) %>%
+  ggplot() +
+  geom_mosaic(aes(x=product(`Chest pain type`, Sex), fill = `Chest pain type`)) +
+  xlab("Sex") +
+  ylab("Chest pain type") + 
+  ggtitle("Is Chest pain type dependent on Sex?")
+```
+
+For this dataset, the chest pain type is dependent on the sex of the patient.
+
+```{r}
+heart_disease_cl %>%
+  mutate(Sex = fct_relevel(sex, "Male"), `Rest ECG` = restecg) %>%
+  ggplot() +
+  geom_mosaic(aes(x=product(`Rest ECG`, Sex), fill = `Rest ECG`)) +
+  xlab("Sex") +
+  ylab("Rest ECG") + 
+  ggtitle("Is Rest ECG dependent on Sex?")
+```
+This mosaic plot shows that the "normal" Rest ECG is very close to being independent on the sex of the patient, which makes sense. Females experience slightly larger percentage of "ST-T wave abnormality".
+
+```{r}
+heart_disease_cl %>%
+  mutate(`Chest pain type` = cp, `Slope` = slope) %>%
+  ggplot() +
+  geom_mosaic(aes(x=product(slope, cp), fill = `Slope`)) +
+  xlab("Chest pain type") +
+  ylab("Slope") + 
+  ggtitle("Is Slope dependent on Chest pain type?")
+```
+Yes, Slope is dependent of Chest pain type.
 
 (b) Combine the four heart disease datasets and create a mosaic plot showing chest pain by sex and location. Describe any patterns.
 
