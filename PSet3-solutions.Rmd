@@ -12,6 +12,11 @@ Data cleaning: for many of the questions, you will have to clean up the data mor
 ```{r setup, include=FALSE}
  # keep this chunk in your .Rmd file
  knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+library(tidyverse)
+library(dplyr)
+library(readxl)
+library(HH)
 ```
     
 ### 1. Coal Emissions
@@ -56,8 +61,117 @@ Data: https://www.schools.nyc.gov/about-us/reports/school-quality/nyc-school-sur
 
 (a) Choose one of the likert style questions from the 2019 parent survey and use a diverging stacked bar chart to show results for the 11 schools identified in the article referenced above.
 
+```{r}
+get_school_survey_responses <- function (path, sheet, question, responses) {
+  # Read only the colum names (2 rows)
+  survey_columns <- read_excel(
+    path = path, 
+    sheet = sheet,
+    n_max = 1
+  )
+  # Fill down the column names to the values of first row
+  survey_columns[1,1:2] <- survey_columns[0,1:2] %>% names()
+  # Find the index of the question we want
+  #print(colnames(survey_columns))
+  question_start_column <- match(question, colnames(survey_columns))
+  # col_indices contains a list of column indices to select for the specified question (including first 2 columns)
+  col_indices = c(1:2, question_start_column:(question_start_column + length(responses) - 1))
+  # col_names contains a list of corresponding column names
+  col_names <- survey_columns[1, col_indices] %>% map(1) %>% as.character
+  # Read only data (excluding column names)
+  survey_data <- read_excel(
+    path = path, 
+    sheet = sheet,
+    skip = 2,
+    col_names = FALSE,
+    col_types = c("text", "text", rep("numeric", ncol(survey_columns)-2)),
+    na = "N/A"
+  )
+  #print(col_indices)
+  #print(col_names)
+  survey_data %>% 
+    # Select only the columns we are interested in
+    select_at(col_indices) %>% 
+    # Rename all columns
+    set_names(col_names) %>%
+    # Reorder columns in the order of responses
+    dplyr::select(DBN, "School Name", responses)
+}
+
+#question = "2f. At this school my child is safe."
+#question = "2g. The school is kept clean."
+question = "5b. The education my child has received this year."
+#question_responses = c("Strongly disagree", "Disagree", "I don't know", "Agree", "Strongly agree")
+q2019 <- get_school_survey_responses(
+  path = "PSet3-data/2019-public-data-file_parent.xlsx", 
+  sheet = " Parent %", 
+  question = question, 
+  responses = c("Very dissatisfied", "Dissatisfied", "I don't know", "Satisfied", "Very satisfied")
+)
+q2019
+```
+```{r}
+school_numbers = c(165, 145, 163, 75, 84, 166, 9, 87, 452, 199, 191)
+linkert_data <- q2019 %>% 
+  filter(DBN %in% paste("03M", str_pad(school_numbers, 3, pad = "0"), sep = "")) %>%
+  mutate(School = paste("P.S.", substr(DBN, 4, 6)))
+
+HH::likert(
+  x = School ~ ., 
+  data = linkert_data, 
+  positive.order = TRUE, 
+  main = question, 
+  xlab = "percent", ylab = ""
+)
+```
+
 (b) Choose a question that was asked in 2014 and 2019 and compare results for the three schools discussed most in the article: P.S. 199, P.S. 191, and P.S. 452. You may use two separate diverging stacked bar charts or combine all the information in one.
+
+```{r}
+q2019 <- get_school_survey_responses(
+  path = "PSet3-data/2019-public-data-file_parent.xlsx", 
+  sheet = " Parent %", 
+  question = "2f. At this school my child is safe.", 
+  responses = c("Strongly disagree", "Disagree", "I don't know", "Agree", "Strongly agree")
+) %>% 
+  filter(DBN %in% paste("03M", str_pad(c(199, 191, 452), 3, pad = "0"), sep = "")) %>%
+  mutate(Year = "2019", School = paste("P.S.", substr(DBN, 4, 6))) %>%
+  dplyr::select(-`I don't know`) # drop column that is not used in 2014 survey
+
+q2014 <- get_school_survey_responses(
+  path = "PSet3-data/2014_20School_20Survey.xlsx", 
+  sheet = "GenEd - Parent %", 
+  question = "2a. At my child's school my child is safe.", 
+  responses = c("Strongly disagree", "Disagree", "Agree", "Strongly agree")
+) %>% 
+  filter(DBN %in% paste("03M", str_pad(c(199, 191, 452), 3, pad = "0"), sep = "")) %>%
+  mutate(Year = "2014", School = paste("P.S.", substr(DBN, 4, 6)))
+
+likert_data <- bind_rows(q2014, q2019)
+```
+```{r}
+HH::likert(
+  data = filter(likert_data, Year == '2014'), 
+  x = School ~ ., 
+  positive.order = FALSE, 
+  data.order = TRUE,
+  main = "2014 survey question: At this school my child is safe", 
+  xlab = "percent", ylab = ""
+)
+```
+```{r}
+HH::likert(
+  data = filter(likert_data, Year == '2019'), 
+  x = School ~ ., 
+  positive.order = FALSE, 
+  data.order = TRUE,
+  main = "2019 survey question: At this school my child is safe", 
+  xlab = "percent", ylab = ""
+)
+
+```
 
 (c) Interpret your findings of (b) in light of the reputations of the schools as presented in the article. Are they surprising or what you would have expected?
 
-
+In section (b) we looked at the survey results answering the question "At this school my child is safe". It looks like for the schools discussed in the article (PS 452, PS 199 and PS 191) the feeling of parental security for their children has gone down, e.g. for PS 452 the number of parents disagreeing or strongly disagreeing increased from 0% to 6%. 
+It is not very surprising, considering the point of the re-zoning was to inrease diversity of each school and mix kids from  well-to-do families and kids from under-priveleged backgrounds. 
