@@ -27,15 +27,79 @@ Data: https://datadiscovery.nlm.nih.gov/Environmental-Health/TOXMAP-EPA-Clean-Ai
 (OK to manually download `.csv` file)
 
 (a) Using `parcoords::parcoords()`, create an interactive parallel coordinate plot of `SO2`, `NOx`, `CO2`, `Heat Input` and `Gross Load`. Each line in the plot should represent one coal plant. Note any patterns.
+```{r}
+library(parcoords)
+ToxMap_data = read.csv('TOXMAP_-_EPA_Clean_Air_Markets_-_2016_Coal_Emissions.csv')
+ToxMap_data = as.data.frame(ToxMap_data)
+parcoords(ToxMap_data[, c(5,7,9,11,12)], alpha = 0.2)
+```
+
+    For SO2, it looks to skew to the right because there are more lines at the bottom of the plot than at the top. Some individual outliers can be seen on the column of SO2.
+    
+    From NOx to gross land, they are no longer right skewd and several groups can be seen on high gross land levels.
 
 (b) Create a second interactive parallel coordiante plot, with the lines colored by state. Include only the states with more than 15 plants. Do any new patterns emerge? Explain briefly.
+```{r}
+library(dplyr)
+library(GGally)
+tmp = ToxMap_data
+tmp$Location = as.character(tmp$Location)
+seq = seq(1, 761, 2)
+tmp$Location = unlist(strsplit(tmp$Location, split = '\n'))[seq]
+state_with_15_more_plants = tmp %>%
+  group_by(Location) %>%
+  count() %>%
+  filter(n > 15) %>%
+  c(.$Location)
+
+tmp = tmp %>%
+  filter(Location %in% state_with_15_more_plants)
+
+ggparcoord(tmp, columns = c(5,7,9,11,12), groupColumn = 13)
+```
+
+    We can see most variables of PA are skewed to the right. There are two obvious outliers of TX with high SO2. There is also one outlier in IN with high NOx, CO2, Heat Input and Gross Load. 
 
 (c) What do `SO2`, `NOx` and `CO2` stand for? Briefly describe why each is harmful.
+
+    SO2: Sulfer dioxide, it is released naturally by volcanic activity and is produced as a by-product of copper extraction and the burning of fossil fuels contaminated with sulfur compounds. Sulfur dioxide can cause increased respiratory symptoms and disease, difficulty in breathing, and premature death.
+    
+    NOx: A generic term for the nitrogen oxides that are most relevant for air pollution, namely nitric oxide (NO) and nitrogen dioxide (NO2). These gases contribute to the formation of smog and acid rain, as well as affecting tropospheric ozone.
+    
+    CO2: Carbon dioxide. Carbon dioxide is the most significant long-lived greenhouse gas in Earth's atmosphere. The gas rapidly increases its concentration in the atmosphere, leading to global warming. 
 
 
 ### 2. Planets
 
 Using **rvest**, scrape the data from this table: https://nssdc.gsfc.nasa.gov/planetary/factsheet/ (hint: `html_table` is helpful). Remove `MOON` data. Then, using `GGally::ggparcoord()`, create two parallel coordinate plots of the numerical variables in the dataset, one colored by the value of `Ring System?` and one colored by planet name. In both cases, each line should represent one planet. Use `coord_flip` so the variable names are easier to read.  Describe any patterns you find.
+
+```{r}
+library(rvest)
+library(purrr)
+##read in data
+planet_data = read_html('https://nssdc.gsfc.nasa.gov/planetary/factsheet/') %>% html_table()
+planet_data = as.data.frame(planet_data)
+
+##change col and row names and transpose the data
+colnames(planet_data) = planet_data[1, ]
+planet_data = planet_data[-1, ]
+rownames(planet_data) = planet_data[, 1]
+planet_data = planet_data[, -c(1, 5)]
+planet_data = t(planet_data)
+planet_data = as.data.frame(planet_data)
+
+##remove comma and convert into numeric
+planet_data[, 1:18] = map(planet_data[, 1:18], as.character)
+planet_data[, 1:18] = map(planet_data[, 1:18], function(y) as.numeric(gsub(",", "", y)))
+planet_data = as.data.frame(planet_data)
+
+colnames(planet_data)[19] = 'RingSystems'
+ggparcoord(planet_data, columns = c(1:16, 18), groupColumn = 19) + 
+  coord_flip()
+
+ggparcoord(planet_data, columns = c(1:16, 18), groupColumn = 21) + 
+  coord_flip()
+```
 
 
 ### 3. Heart Disease
