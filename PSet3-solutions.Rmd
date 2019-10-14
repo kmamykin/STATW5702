@@ -1,5 +1,6 @@
 ---
 title: "EDAV Fall 2019 PSet 3"
+author: Shaofeng Wu (sw3428) and Kliment Mamykin (km2770)
 output: html_document
 ---
 
