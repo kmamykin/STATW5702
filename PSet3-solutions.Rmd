@@ -31,13 +31,18 @@ Data: https://datadiscovery.nlm.nih.gov/Environmental-Health/TOXMAP-EPA-Clean-Ai
 ```{r}
 library(parcoords)
 ToxMap_data = read.csv('TOXMAP_-_EPA_Clean_Air_Markets_-_2016_Coal_Emissions.csv')
-ToxMap_data = as.data.frame(ToxMap_data)
-parcoords(ToxMap_data[, c(5,7,9,11,12)], alpha = 0.2)
+ToxMap_data = as.data.frame(ToxMap_data) %>% arrange(SO2)
+#parcoords(ToxMap_data[, c(5,9, 7,11,12)], alpha = 0.2)
+parcoords(ToxMap_data[, c(5, 7, 9, 11, 12)], alpha = 0.2)
+#pairs(ToxMap_data %>% dplyr::select(c(9, 7, 5, 11, 12)))
 ```
 
     For SO2, it looks to skew to the right because there are more lines at the bottom of the plot than at the top. Some individual outliers can be seen on the column of SO2.
     
     From NOx to gross land, they are no longer right skewd and several groups can be seen on high gross land levels.
+    
+    CO2, Heat.Input and Gross.Load are positively correlated.
+    
 
 (b) Create a second interactive parallel coordiante plot, with the lines colored by state. Include only the states with more than 15 plants. Do any new patterns emerge? Explain briefly.
 ```{r}
