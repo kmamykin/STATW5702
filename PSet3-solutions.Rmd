@@ -209,8 +209,8 @@ bind_rows(
   ylab("") + 
   ggtitle("Is Chest pain type dependent on Sex or Location?")
 ```
-The most common chest pain type across sex and location is "asymptomatic", purple color is dominant on the plot, least common is "typical angina".
-VA and Switzelend locations has a relatively small percentage of Females in the dataset. In all locations the number of Males was larger then Females.
+The most common chest pain type across sex and location is "asymptomatic", purple color is dominant on the plot, least common is "typical angina". 
+VA and Switzelend locations has a relatively small percentage of Females in the dataset. Because the sample size is not large enough for females in these two locations, we may not be able to draw impact conclusions based on thses samples. In all locations the number of Males was larger then Females.
 Chest pain type is dependent on both Sex and Location.
 
 ### 4. District 3 Elementary Schools
@@ -339,4 +339,4 @@ HH::likert(
 (c) Interpret your findings of (b) in light of the reputations of the schools as presented in the article. Are they surprising or what you would have expected?
 
 In section (b) we looked at the survey results answering the question "At this school my child is safe". It looks like for the schools discussed in the article (PS 452, PS 199 and PS 191) the feeling of parental security for their children has gone down, e.g. for PS 452 the number of parents disagreeing or strongly disagreeing increased from 0% to 6%. 
-It is not very surprising, considering the point of the re-zoning was to inrease diversity of each school and mix kids from  well-to-do families and kids from under-priveleged backgrounds. 
+It is not very surprising, considering the point of the re-zoning was to inrease diversity of each school and mix kids from well-to-do families and kids from under-priveleged backgrounds. 
