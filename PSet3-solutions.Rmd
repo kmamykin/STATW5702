@@ -19,8 +19,10 @@ library(dplyr)
 library(readxl)
 library(HH)
 library(ggmosaic)
+library(ucidata)
+library(d3r)
 ```
-    
+
 ### 1. Coal Emissions
 
 Data: https://datadiscovery.nlm.nih.gov/Environmental-Health/TOXMAP-EPA-Clean-Air-Markets-2016-Coal-Emissions/n97u-wtk7
@@ -31,39 +33,54 @@ Data: https://datadiscovery.nlm.nih.gov/Environmental-Health/TOXMAP-EPA-Clean-Ai
 ```{r}
 library(parcoords)
 ToxMap_data = read.csv('TOXMAP_-_EPA_Clean_Air_Markets_-_2016_Coal_Emissions.csv')
-ToxMap_data = as.data.frame(ToxMap_data) %>% arrange(SO2)
-#parcoords(ToxMap_data[, c(5,9, 7,11,12)], alpha = 0.2)
-parcoords(ToxMap_data[, c(5, 7, 9, 11, 12)], alpha = 0.2)
-#pairs(ToxMap_data %>% dplyr::select(c(9, 7, 5, 11, 12)))
+ToxMap_data = as.data.frame(ToxMap_data)
+parcoords(ToxMap_data[, c(5, 7, 9, 11, 12)], 
+          rownames = F, 
+          brushMode = "1D-axis", 
+          reorderable = T, 
+          queue = T)
 ```
-
+    
+    We draw the graph with high correlated column being put together.
+    
     For SO2, it looks to skew to the right because there are more lines at the bottom of the plot than at the top. Some individual outliers can be seen on the column of SO2.
     
     From NOx to gross land, they are no longer right skewd and several groups can be seen on high gross land levels.
     
-    CO2, Heat.Input and Gross.Load are positively correlated.
+    CO2, Heat Input and Gross Load are positively correlated.
     
 
 (b) Create a second interactive parallel coordiante plot, with the lines colored by state. Include only the states with more than 15 plants. Do any new patterns emerge? Explain briefly.
 ```{r}
 library(dplyr)
 library(GGally)
-tmp = ToxMap_data
-tmp$Location = as.character(tmp$Location)
-seq = seq(1, 761, 2)
-tmp$Location = unlist(strsplit(tmp$Location, split = '\n'))[seq]
-state_with_15_more_plants = tmp %>%
-  group_by(Location) %>%
+with_state = ToxMap_data %>% 
+  mutate(State = substr(Location, 1, 2))
+
+state_with_15_more_plants = with_state %>%
+  group_by(State) %>%
   count() %>%
   filter(n > 15) %>%
-  c(.$Location)
+  c(.$State)
 
-tmp = tmp %>%
-  filter(Location %in% state_with_15_more_plants)
+plot_data = with_state %>%
+  filter(State %in% state_with_15_more_plants)
 
-ggparcoord(tmp, columns = c(5,7,9,11,12), groupColumn = 13)
+parcoords(plot_data[, c(5, 7, 9, 11, 12, 14)], 
+          rownames = F, 
+          brushMode = "1D-axis", 
+          reorderable = T, 
+          queue = T,
+          color = list(
+          colorBy = "State",
+          colorScale = "scaleOrdinal",
+          colorScheme = "schemeCategory10"
+          ), 
+          withD3 = TRUE)
 ```
 
+    We draw the graph with high correlated column being put together.
+    
     We can see most variables of PA are skewed to the right. There are two obvious outliers of TX with high SO2. There is also one outlier in IN with high NOx, CO2, Heat Input and Gross Load. 
 
 (c) What do `SO2`, `NOx` and `CO2` stand for? Briefly describe why each is harmful.
@@ -74,6 +91,7 @@ ggparcoord(tmp, columns = c(5,7,9,11,12), groupColumn = 13)
     
     CO2: Carbon dioxide. Carbon dioxide is the most significant long-lived greenhouse gas in Earth's atmosphere. The gas rapidly increases its concentration in the atmosphere, leading to global warming. 
 
+(source: 1. https://en.wikipedia.org/wiki/Sulfur_dioxide 2. https://en.wikipedia.org/wiki/NOx 3. https://en.wikipedia.org/wiki/Carbon_dioxide) 
 
 ### 2. Planets
 
@@ -99,15 +117,39 @@ planet_data[, 1:18] = map(planet_data[, 1:18], as.character)
 planet_data[, 1:18] = map(planet_data[, 1:18], function(y) as.numeric(gsub(",", "", y)))
 planet_data = as.data.frame(planet_data)
 
-colnames(planet_data)[19] = 'RingSystems'
-ggparcoord(planet_data, columns = c(1:16, 18), groupColumn = 19) + 
-  coord_flip()
-
-ggparcoord(planet_data, columns = c(1:16, 18), groupColumn = 21) + 
+colnames(planet_data)[19] = 'Ring_Systems'
+ggparcoord(planet_data, columns = c(8:11, 16, 12, 1:7, 13:15, 18), groupColumn = 19) + 
   coord_flip()
 ```
 
+    We draw the graph with high correlated columns being put together.
 
+    Orbital Period, Aphelion, Perihelion and Distance from Sun are highly correlated.
+    
+    Planets with ring systems have larger diameter, mass, gravity, escape velocity and number of moons than planets without ring systems which makes sense.
+    
+    Most planets without ring systems have larger obliquity to orbit, orbital eccentricity, orbital inclination, length of day and density than planets with ring systems.
+    
+    There's an outlier in planets without ring systems on rotation period variable. There are also three outliers on planets with ring systems on escape velocity, gravity and mass variables.
+    
+    
+    
+    
+```{r}
+ggparcoord(planet_data, columns = c(8:11, 16, 12, 1:7, 13:15, 18), groupColumn = 21) + 
+  coord_flip()
+```
+
+    We draw the graph with high correlated columns being put together.
+
+    Orbital Period, Aphelion, Perihelion and Distance from Sun are highly correlated.
+    
+    Venus has outliers on obliquity to orbit, length of day, rotation period and mean temperature. 
+    
+    Pluto has an outlier on orbital inclination.
+    
+    Jupiter has outliers on escape velocity, gravity, diameter and mass because it's the largest planet in the solar system.
+    
 ### 3. Heart Disease
 
 Data: four data frames that begin with `heart_disease` in the **ucidata** package
