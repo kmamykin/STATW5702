@@ -168,7 +168,9 @@ heart_disease_cl %>%
   ggtitle("Is Chest pain type dependent on Sex?")
 ```
 
-For this dataset, the chest pain type is dependent on the sex of the patient.
+
+  For this dataset, the chest pain type is dependent on the sex of the patient.
+
 
 ```{r}
 heart_disease_cl %>%
@@ -179,7 +181,8 @@ heart_disease_cl %>%
   ylab("Rest ECG") + 
   ggtitle("Is Rest ECG dependent on Sex?")
 ```
-This mosaic plot shows that the "normal" Rest ECG is very close to being independent on the sex of the patient, which makes sense. Females experience slightly larger percentage of "ST-T wave abnormality".
+
+  This mosaic plot shows that the "normal" Rest ECG is very close to being independent on the sex of the patient, which makes sense. Females experience slightly larger percentage of "ST-T wave abnormality".
 
 ```{r}
 heart_disease_cl %>%
@@ -190,7 +193,8 @@ heart_disease_cl %>%
   ylab("Slope") + 
   ggtitle("Is Slope dependent on Chest pain type?")
 ```
-Yes, Slope is dependent of Chest pain type.
+
+  Yes, Slope is dependent of Chest pain type.
 
 (b) Combine the four heart disease datasets and create a mosaic plot showing chest pain by sex and location. Describe any patterns.
 
@@ -209,9 +213,10 @@ bind_rows(
   ylab("") + 
   ggtitle("Is Chest pain type dependent on Sex or Location?")
 ```
-The most common chest pain type across sex and location is "asymptomatic", purple color is dominant on the plot, least common is "typical angina". 
-VA and Switzelend locations has a relatively small percentage of Females in the dataset. Because the sample size is not large enough for females in these two locations, we may not be able to draw impact conclusions based on thses samples. In all locations the number of Males was larger then Females.
-Chest pain type is dependent on both Sex and Location.
+
+  The most common chest pain type across sex and location is "asymptomatic", purple color is dominant on the plot, least common is "typical angina". 
+  VA and Switzelend locations has a relatively small percentage of Females in the dataset. Because the sample size is not large enough for females in these two locations, we may not be able to draw impact conclusions based on thses samples. In all locations the number of Males was larger then Females.
+  Chest pain type is dependent on both Sex and Location.
 
 ### 4. District 3 Elementary Schools
 
@@ -277,13 +282,13 @@ q2019
 ```
 ```{r}
 school_numbers = c(165, 145, 163, 75, 84, 166, 9, 87, 452, 199, 191)
-linkert_data <- q2019 %>% 
+likert_data <- q2019 %>% 
   filter(DBN %in% paste("03M", str_pad(school_numbers, 3, pad = "0"), sep = "")) %>%
   mutate(School = paste("P.S.", substr(DBN, 4, 6)))
 
 HH::likert(
   x = School ~ ., 
-  data = linkert_data, 
+  data = likert_data, 
   positive.order = TRUE, 
   main = question, 
   xlab = "percent", ylab = ""
@@ -293,13 +298,14 @@ HH::likert(
 (b) Choose a question that was asked in 2014 and 2019 and compare results for the three schools discussed most in the article: P.S. 199, P.S. 191, and P.S. 452. You may use two separate diverging stacked bar charts or combine all the information in one.
 
 ```{r}
+selected_schools_DBNs <- paste("03M", str_pad(c(199, 191, 452), 3, pad = "0"), sep = "")
 q2019 <- get_school_survey_responses(
   path = "PSet3-data/2019-public-data-file_parent.xlsx", 
   sheet = " Parent %", 
   question = "2f. At this school my child is safe.", 
   responses = c("Strongly disagree", "Disagree", "I don't know", "Agree", "Strongly agree")
 ) %>% 
-  filter(DBN %in% paste("03M", str_pad(c(199, 191, 452), 3, pad = "0"), sep = "")) %>%
+  filter(DBN %in% selected_schools_DBNs) %>%
   mutate(Year = "2019", School = paste("P.S.", substr(DBN, 4, 6))) %>%
   dplyr::select(-`I don't know`) # drop column that is not used in 2014 survey
 
@@ -309,28 +315,40 @@ q2014 <- get_school_survey_responses(
   question = "2a. At my child's school my child is safe.", 
   responses = c("Strongly disagree", "Disagree", "Agree", "Strongly agree")
 ) %>% 
-  filter(DBN %in% paste("03M", str_pad(c(199, 191, 452), 3, pad = "0"), sep = "")) %>%
+  filter(DBN %in% selected_schools_DBNs) %>%
   mutate(Year = "2014", School = paste("P.S.", substr(DBN, 4, 6)))
 
-likert_data <- bind_rows(q2014, q2019)
+likert_data <- bind_rows(q2019, q2014)
 ```
+
 ```{r}
 HH::likert(
-  data = filter(likert_data, Year == '2014'), 
-  x = School ~ ., 
+  data = filter(likert_data, School == 'P.S. 199'), 
+  x = Year ~ ., 
   positive.order = FALSE, 
   data.order = TRUE,
-  main = "2014 survey question: At this school my child is safe", 
+  main = "P.S. 199: At this school my child is safe", 
   xlab = "percent", ylab = ""
 )
 ```
 ```{r}
 HH::likert(
-  data = filter(likert_data, Year == '2019'), 
-  x = School ~ ., 
+  data = filter(likert_data, School == 'P.S. 191'), 
+  x = Year ~ ., 
   positive.order = FALSE, 
   data.order = TRUE,
-  main = "2019 survey question: At this school my child is safe", 
+  main = "P.S. 191: At this school my child is safe", 
+  xlab = "percent", ylab = ""
+)
+
+```
+```{r}
+HH::likert(
+  data = filter(likert_data, School == 'P.S. 452'), 
+  x = Year ~ ., 
+  positive.order = FALSE, 
+  data.order = TRUE,
+  main = "P.S. 452: At this school my child is safe", 
   xlab = "percent", ylab = ""
 )
 
