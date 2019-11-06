@@ -104,8 +104,8 @@ The axes and levels of each variable should be labeled.
         <rect x="0" y="`r t[['M', 'Republican']]`" height="`r t[['M', 'Democrat']]`" width="`r t[['M','all']]`" fill="#00AEF3"></rect>
       </g> 
       <g> 
-        <rect x="`r t[['M','all']]`" y="0" height="`r t[['F', 'Republican']]`" width="`r t[['F','all']]`" fill="red"></rect> 
-        <rect x="`r t[['M','all']]`" y="`r t[['F', 'Republican']]`" height="`r t[['F', 'Democrat']]`" width="`r t[['F','all']]`" fill="#00AEF3"></rect> 
+        <rect x="`r t[['M','all']] + 1`" y="0" height="`r t[['F', 'Republican']]`" width="`r t[['F','all']]`" fill="red"></rect> 
+        <rect x="`r t[['M','all']] + 1`" y="`r t[['F', 'Republican']]`" height="`r t[['F', 'Democrat']]`" width="`r t[['F','all']]`" fill="#00AEF3"></rect> 
       </g> 
     </g> 
     <!-- Horizontal axis labels -->
