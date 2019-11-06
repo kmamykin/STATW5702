@@ -66,17 +66,60 @@ https://www.nytimes.com/interactive/2017/10/05/upshot/gun-ownership-partisan-div
 
 You may remove any Independents. 
 
+```{r}
+library(tidyverse)
+congress_legislators = read_csv("https://theunitedstates.io/congress-legislators/legislators-current.csv")
+
+df = congress_legislators %>% 
+  filter(type == 'rep') %>% # Only House representatives
+  filter(party != "Independent") # Excluding Independents
+
+ctable = table(df$gender, df$party)
+gender = rowSums(ctable)
+t = cbind(ctable/gender, all = gender/sum(gender))
+t = 100*t
+
+print(t)  
+```
+
 The SVG should be 500 x 400 pixels and included in your `.Rmd` file between svg tags (**not** in a code chunk):
-
-<svg width="500" height="400"> 
-
-*Your svg code here.*  
-
-</svg>
 
 The axes and levels of each variable should be labeled.
 
 (Don't despair, this is the only time you will have to create SVG by hand for this class!)
+
+<svg width="500" height="400" viewBox="0 0 125 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background fill of the whole area -->
+  <rect width="100%" height="100%" fill="#f9f9f9"></rect>
+  <!-- Title -->
+  <g> 
+    <text x="60" y="5" font-size="5" text-anchor="middle">Party affiliation by gender in US Congress</text>
+  </g>
+  <!-- Mosaic area (drawn in 100x100 square, then scaled to fit the canvas), -->
+  <g transform="scale(0.85) translate(23,10)">
+    <!-- Square 100x100 -->
+    <g stroke="#f9f9f9" stroke-width="0.5" transform=""> 
+      <g>
+        <rect x="0" y="0" height="`r t[['M', 'Republican']]`" width="`r t[['M','all']]`" fill="red"></rect>
+        <rect x="0" y="`r t[['M', 'Republican']]`" height="`r t[['M', 'Democrat']]`" width="`r t[['M','all']]`" fill="#00AEF3"></rect>
+      </g> 
+      <g> 
+        <rect x="`r t[['M','all']]`" y="0" height="`r t[['F', 'Republican']]`" width="`r t[['F','all']]`" fill="red"></rect> 
+        <rect x="`r t[['M','all']]`" y="`r t[['F', 'Republican']]`" height="`r t[['F', 'Democrat']]`" width="`r t[['F','all']]`" fill="#00AEF3"></rect> 
+      </g> 
+    </g> 
+    <!-- Horizontal axis labels -->
+    <g transform="translate(0, 107)"> 
+      <text x="`r t[['M','all']]/2`" y="0" font-size="5" text-anchor="middle">Male</text> 
+      <text x="`r t[['M','all']] + t[['F','all']]/2`" y="0" font-size="5" text-anchor="middle">Female</text> 
+    </g>
+    <!-- Vertical axis labels -->
+    <g transform="translate(0, 100) rotate(-90) translate(0, -2)"> 
+      <text x="`r t[['M','Democrat']]/2`" y="0" font-size="5" text-anchor="middle">Democrat</text> 
+      <text x="`r t[['M','Democrat']] + t[['M','Republican']]/2`" y="0" font-size="5" text-anchor="middle">Republican</text> 
+    </g>
+  </g>
+</svg>
 
 
 (b) Change your code from (a) so that with the exception of the blank SVG, the mosaic plot is completely created with D3, based on a dataset that you provide that contains the 4 values you calculated for part (a). Your code should work if the values change.
