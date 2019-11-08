@@ -24,9 +24,32 @@ You may choose your own data. The only requirement is that it has some missing v
 
 Use any R plotting package (`ggplot2`, `naniar`, `mi`, `extracat`, etc.) to answer the following questions. (Note that `extracat` is not currently on CRAN but you can install it from a CRAN read-only mirror on GitHub: https://github.com/cran/extracat)
 
-(a) Visualize and describe missing column patterns. Which variable has the highest number of missing values? 
+(a) Visualize and describe missing column patterns. Which variable has the highest number of missing values?
+
+```{r}
+library(visdat)
+library(naniar)
+library(ggplot2)
+
+df <- data.frame(matrix(data = sample(100,100,replace=TRUE), ncol = 10))
+df[df>80] <- NA
+vis_miss(df) + ggtitle("Missing values in the dataset") #Plot 1
+
+gg_miss_var(df)+ ggtitle("Missing values in the dataset sorted by count") #Plot 2
+
+```
+Plot 1 shows the missing values (by column) in the dataset in the order they appear, X1 - X10. As the legend shows, the black parts of the visualization represent the missing values and the white represents the present values. The y axis shows the order of observations as they appear in the dataset. 
+Plot 2 shows the missing values by column in a sorted manner. The variable with the highest number of missing values is hence column X1. 
 
 (b) Visualize and describe missing row patterns. Which row has the highest number of missing values? 
+
+```{r}
+df1 <- data.frame(t(df))
+vis_miss(df1) + ggtitle("Missing values in the dataset")
+gg_miss_var(df1)+ ggtitle("Missing values in the dataset rows sorted by count")
+#have to change rownames
+```
+Rows Y7, Y4 and Y10 have the highest number of missing values.
 
 (c) Do correlations exist between the values of other variables and missing patterns? Investigate two missing patterns and draw conclusions such as:
 
