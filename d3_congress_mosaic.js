@@ -29,8 +29,12 @@ const colors = {
   Republican: "red"
 };
 
+const titleHeight = 40;
+const axisHeight = 40;
+const plotAreaSize = Math.min(height - titleHeight - axisHeight, width - (2*axisHeight)) // the area should be a square
 const hSplitGutter = 1;
 const vSplitGutter = 0.3;
+
 const rects = [
   {x: 0, y: 0, height: (partyCounts.M.Democrat/genderCounts.M)*100, width: (genderCounts.M / totalCount)*100, fill: colors.Democrat},
   {x: 0, y: vSplitGutter + (partyCounts.M.Democrat/genderCounts.M)*100, height: (partyCounts.M.Republican/genderCounts.M)*100, width: (genderCounts.M / totalCount)*100, fill:colors.Republican},
@@ -41,17 +45,14 @@ const rects = [
 const xTicks = [
   {x: (genderCounts.M / totalCount)*100/2, y: 5, fontSize: 5, label: "Male"},
   {x: hSplitGutter + (genderCounts.M / totalCount)*100 + (genderCounts.F / totalCount)*100/2, y: 5, fontSize: 5, label: "Female"},
+  {x: 50, y: 10, fontSize: 5, label: "Gender"},
 ];
 
 const yTicks = [
-  {x: (partyCounts.M.Democrat/genderCounts.M)*100/2, y: 5, fontSize: 5, label: "Democrat"},
-  {x: (partyCounts.M.Democrat/genderCounts.M)*100 + (partyCounts.M.Republican/genderCounts.M)*100/2, y: 5, fontSize: 5, label: "Republican"},
+  {x: (partyCounts.M.Democrat/genderCounts.M)*100/2, y: 8, fontSize: 5, label: "Democrat"},
+  {x: (partyCounts.M.Democrat/genderCounts.M)*100 + (partyCounts.M.Republican/genderCounts.M)*100/2, y: 8, fontSize: 5, label: "Republican"},
+  {x: 50, y: 4, fontSize: 5, label: "Party"},
 ];
-
-
-const titleHeight = 40;
-const axisHeight = 30;
-const plotAreaSize = Math.min(height - titleHeight - axisHeight, width - (2*axisHeight)) // the area should be a square
 
 const title = svg.append("text")
   .attr("x", () => width/2)
