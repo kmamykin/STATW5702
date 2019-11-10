@@ -111,20 +111,24 @@ https://www.nytimes.com/interactive/2017/10/05/upshot/gun-ownership-partisan-div
 
 ```{r}
 library(tidyverse)
-
-# https://wonder.cdc.gov/controller/saved/D76/D69F994
 library(readr)
 deaths = read_tsv("./PSet4-data/Overdose-1999-2017.txt")
-#deaths = read_tsv("./PSet4-data/AIDS-1999-2017.txt")
 head(deaths)
 ```
 ```{r}
+deaths_1999 = deaths %>%
+    filter(Year == 1999) %>%
+    group_by(State) %>%
+    summarise(Deaths = sum(Deaths)) %>%
+    ungroup()
+#print(deaths_1999)
 df = deaths %>%
     filter(Year %in% c(2002, 2005, 2008, 2011, 2014, 2017)) %>%
     group_by(Year, State) %>%
     summarise(Deaths = sum(Deaths), Population = sum(Population)) %>%
     ungroup() %>%
-    mutate(state = tolower(State), value = Deaths)
+    left_join(y = deaths_1999, by = "State", suffix = c("", "_1999")) %>%
+    mutate(State = tolower(State), Deaths_per_Thousands = 100000*Deaths/Population, Deaths_Change = (Deaths - Deaths_1999)/Deaths_1999)
 head(df)
 ```
 ```{r fig.height=10, fig.width=12}
@@ -135,19 +139,24 @@ library(ggplot2)
 usa <- map_data("usa")
 states <- map_data("state")
 
-ggplot(df, aes(map_id = state)) + 
-  geom_map(aes(fill = value), map = states) +
+ggplot(df, aes(map_id = State)) + 
+  geom_map(aes(fill = Deaths_per_Thousands), map = states) +
   expand_limits(x = states$long, y = states$lat) +
-  scale_fill_gradient(low = "white", high = "#FE2EC8") +
-  labs(
-    title = "US Per Capita Income by States, 1974", 
-    x = "longitude", 
-    y = "latitude",
-    caption = "source: https://www.rdocumentation.org/packages/datasets/versions/3.6.1/topics/state"
-  ) +
+  scale_fill_gradient2(low = "green", mid = "white", high = "red", na.value = "white", name = "Deaths per 100,000") +
   coord_fixed(1.3) +
   facet_wrap(~Year, ncol = 2) + 
-  theme(panel.background = element_blank())
+  labs(
+    title = "Drug Related Deaths 2002-2017", 
+    x = "", 
+    y = "",
+    caption = "source: https://wonder.cdc.gov/controller/saved/D76/D70F010"
+  ) +
+  theme(
+    title = element_text(size = rel(1.5)),
+    panel.background = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank()
+  )
 ```
 
 (b) Interpret the graphs you drew in (a).
