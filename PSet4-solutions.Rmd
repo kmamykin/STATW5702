@@ -142,7 +142,7 @@ states <- map_data("state")
 ggplot(df, aes(map_id = State)) + 
   geom_map(aes(fill = Deaths_per_Thousands), map = states) +
   expand_limits(x = states$long, y = states$lat) +
-  scale_fill_gradient2(low = "green", mid = "white", high = "red", na.value = "white", name = "Deaths per 100,000") +
+  scale_fill_distiller(type = "seq", palette = "Purples", direction = 1, na.value = "white", name = "Deaths per\n100,000") +
   coord_fixed(1.3) +
   facet_wrap(~Year, ncol = 2) + 
   labs(
