@@ -66,6 +66,12 @@ https://www.nytimes.com/interactive/2017/10/05/upshot/gun-ownership-partisan-div
 
 You may remove any Independents. 
 
+The SVG should be 500 x 400 pixels and included in your `.Rmd` file between svg tags (**not** in a code chunk):
+
+The axes and levels of each variable should be labeled.
+
+(Don't despair, this is the only time you will have to create SVG by hand for this class!)
+
 ```{r}
 library(tidyverse)
 congress_legislators = read_csv("https://theunitedstates.io/congress-legislators/legislators-current.csv")
@@ -79,14 +85,8 @@ gender = rowSums(ctable)
 t = cbind(ctable/gender, all = gender/sum(gender))
 t = 100*t
 
-print(t)  
+print(t)
 ```
-
-The SVG should be 500 x 400 pixels and included in your `.Rmd` file between svg tags (**not** in a code chunk):
-
-The axes and levels of each variable should be labeled.
-
-(Don't despair, this is the only time you will have to create SVG by hand for this class!)
 
 <svg width="500" height="400" viewBox="0 0 125 100" xmlns="http://www.w3.org/2000/svg">
   <!-- Background fill of the whole area -->
@@ -124,21 +124,12 @@ The axes and levels of each variable should be labeled.
 
 (b) Change your code from (a) so that with the exception of the blank SVG, the mosaic plot is completely created with D3, based on a dataset that you provide that contains the 4 values you calculated for part (a). Your code should work if the values change.
 
-There are two options for including D3 directly in your `.Rmd` file:
-
-  i. You can include it as before in the "non code" section of the file using the template below. If you go this route, you will likely prefer to work in a text editor with a browser open on the other half of your screen, or in some other manner which will allow you to view your visualization as you go.
-
-<svg id="partb" width="500" height="400">
-</svg>
-
-<script src="https://d3js.org/d3.v5.min.js"></script>
-
-<script>
-
-*Your JavaScript/D3 code goes here.*
-
-</script>
-
   ii. Use the **r2d3** package. The setup here is different.  You will create your visualization in a `.js` file and then call it from an R chunk. More information is available on the package site: https://rstudio.github.io/r2d3/ (Note that you no longer need the preview version of RStudio.) If you use **r2d3**, please erase the template code in i.
 
-
+```{r}
+data = df %>%
+  group_by(gender, party) %>%
+  summarise(Freq = n()) %>%
+  ungroup()
+r2d3::r2d3("d3_congress_mosaic.js", data=data)
+```
