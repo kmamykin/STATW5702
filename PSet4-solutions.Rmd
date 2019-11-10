@@ -24,9 +24,29 @@ You may choose your own data. The only requirement is that it has some missing v
 
 Use any R plotting package (`ggplot2`, `naniar`, `mi`, `extracat`, etc.) to answer the following questions. (Note that `extracat` is not currently on CRAN but you can install it from a CRAN read-only mirror on GitHub: https://github.com/cran/extracat)
 
-(a) Visualize and describe missing column patterns. Which variable has the highest number of missing values? 
+(a) Visualize and describe missing column patterns. Which variable has the highest number of missing values?
+
+```{r}
+library(visdat)
+library(naniar)
+library(ggplot2)
+df <- data.frame(matrix(data = sample(100,100,replace=TRUE), ncol = 10))
+df[df>80] <- NA
+vis_miss(df) + ggtitle("Missing column values of the dataset") + xlab("Columns") #Plot 1
+gg_miss_var(df)+ ggtitle("Missing column values of the dataset sorted by count") + xlab("Columns") #Plot 2
+```
+Plot 1 shows the missing values (by column) in the dataset in the order they appear, X1 - X10. As the legend shows, the black parts of the visualization represent the missing values and the white represents the present values. The y axis shows the order of observations as they appear in the dataset(1 to 10). 
+Plot 2 shows the missing values by column in a sorted manner. The variable with the highest number of missing values is hence column X1. 
 
 (b) Visualize and describe missing row patterns. Which row has the highest number of missing values? 
+
+```{r}
+df1 <- data.frame(t(df))
+colnames(df1) <- c(1:10)
+vis_miss(df1) + ggtitle("Missing row values in the dataset") + xlab("Rows") #Plot 1
+gg_miss_var(df1)+ ggtitle("Missing row values in the dataset rows sorted by count") + xlab("Rows") #Plot 2
+```
+Similar to visualization of missing column values, plot 1 shows the missing values that appear in th rows (in the order they appear). And plot 2 shows missing values by rows in a sorted manner. Row Y9 has the highest number of missing values.
 
 (c) Do correlations exist between the values of other variables and missing patterns? Investigate two missing patterns and draw conclusions such as:
 
@@ -39,11 +59,40 @@ Support your conclusions with graphs.
 ### 2. Time Series
 
 (a) Use the **tidyquant** package to collect information on anything other than stock prices for which time series data is available. Create a multiple line chart to compare trends over time. Your chart should have at least 3 lines.
+```{r}
+library(tidyquant)
+library(ggplot2)
+#tq_get_options()
+#?tq_get
+price <- tq_get("gold", get = "metal.prices", 
+                         from = Sys.Date() - lubridate::days(100), base.currency = "EUR")
+colnames(price)[colnames(price)=="price"] <- "gold"
+plat_price <- tq_get("plat", get = "metal.prices",
+                     from = Sys.Date() - lubridate::days(100), base.currency = "EUR")
+price$plat=plat_price$price
+silver_price <- tq_get("silver", get = "metal.prices",
+                     from = Sys.Date() - lubridate::days(100), base.currency = "EUR")
+price$silver=silver_price$price
 
+metalprices <- melt(price, id = c("date"), variable.name = "metal", value.name = "price")
+
+metalprices %>%
+  ggplot(aes(date, y = price, colour = metal, group = metal)) +
+  geom_line() +
+  labs(title = "Metal Prices", y = "Price", x = "") + 
+  theme_tq()
+
+```
 
 (b) Transform the data so each series begins at 100 and replot. (see Unwin, p. 229)
-
-
+```{r}
+newmetalprices <- metalprices[which(metalprices$price > 100),]
+newmetalprices %>%
+  ggplot(aes(date, y = price, colour = metal, group = metal)) +
+  geom_line() +
+  labs(title = "Metal Prices", y = "Price", x = "") + 
+  theme_tq()
+```
 (c) Compare the graphs in (a) and (b).
 
 ### 3. Cause of Death
