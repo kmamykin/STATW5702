@@ -161,6 +161,8 @@ ggplot(df, aes(map_id = State)) +
 
 (b) Interpret the graphs you drew in (a).
 
+The visualization shows the progression of the opioid crisis in the United States, and the states most affected. While in 2002 and 2005 there was relatively little change, starting with 2008 West Virginia starts to climb in the drug related deaths, and by 2017 West Virginia is the leading state in this crisis with 56.3 deaths per 100,000. The states nearing West Virginia are also highly affected, Ohio (45.4 per 100,000), Pensilvania (42.9 per 100,000) and Kentucky (37.3 per 100,000).
+
 ### 4. Mosaic plot (SVG / D3)
 
 (a) Manually create a 2 x 2 mosaic plot of party affiliation by gender for (House) representatives currently in the U.S. Congress using SVG. Data is available here in `.csv` form: https://github.com/unitedstates/congress-legislators
