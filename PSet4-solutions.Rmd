@@ -62,6 +62,7 @@ Support your conclusions with graphs.
 ```{r}
 library(tidyquant)
 library(ggplot2)
+library(reshape2)
 #tq_get_options()
 #?tq_get
 price <- tq_get("gold", get = "metal.prices", 
