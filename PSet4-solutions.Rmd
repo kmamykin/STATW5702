@@ -113,7 +113,7 @@ newmetalprices %>%
 ```
 (c) Compare the graphs in (a) and (b).
 
-Graphs in (a)  and (b) show that value/price of silver has been below 100 throughout the years.
+Graphs in (a)  and (b) show that value/price of silver has been below 100 throughout the years. The value of palladium saw a rapid increase whereas price of gold increased slowly in the month of Septembder and then started decreasing in a gradual manner from mid Setember to November. The ptice of palladium also increased in September, stayed almost constant till October and then started decreasing. It saw a small rise again in November. We can notice that all three metal saw an increase in price in te month of September.
 
 ### 3. Cause of Death
 
