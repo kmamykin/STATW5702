@@ -61,7 +61,7 @@ gg_miss_var(newdf1)+ ggtitle("Missing row values in the dataset rows sorted by c
   
 ```
 
-Similar to visualization of missing column values, plot 1 shows the missing values that appear in th rows (in the order they appear). And plot 2 shows missing values by rows in a sorted manner. Multiple rows have the highest number of missing values including row numbers 8,6,5,30,3,29,22,2,18,14,1.
+Similar to visualization of missing column values, plot 1 shows the missing values that appear in the rows (in the order they appear). And plot 2 shows missing values by rows in a sorted manner. Multiple rows have the highest number of missing values including row numbers 8,6,5,30,3,29,22,2,18,14,1.
 
 (c) Do correlations exist between the values of other variables and missing patterns? Investigate two missing patterns and draw conclusions such as:
 
