@@ -27,7 +27,7 @@ Use any R plotting package (`ggplot2`, `naniar`, `mi`, `extracat`, etc.) to answ
 (a) Visualize and describe missing column patterns. Which variable has the highest number of missing values?
 
 ```{r}
-ibrary(visdat)
+library(visdat)
 library(naniar)
 library(ggplot2)
 library(dplyr)
@@ -72,9 +72,9 @@ Similar to visualization of missing column values, plot 1 shows the missing valu
 Support your conclusions with graphs. 
 
 There seems to be a correlation between the missing values and the month.
-Many values of Ozone are missing in the month of June (6th month). This can be seen in the first graph and second graph.
+Many values of Ozone are missing around the month of June (6th month). This can be seen in the first graph and second graph.
 ```{r}
-gg_miss_fct(x = newdf, fct = Month ) + labs(title = "NA in Air Quality and Ozone") #GRAPH 1
+gg_miss_fct(x = newdf, fct = Month ) + labs(title = "NA in Air Quality and Months") #GRAPH 1
 
 ggplot(airquality, #GRAPH 2
        aes(x = Ozone,
@@ -123,6 +123,7 @@ metalprices %>%
   labs(title = "Metal Prices", y = "Price", x = "") + 
   theme_tq()
 ```
+This chart can help us compare prices of 4 metal namely gold, platinum, silver and palladium over time (August to November). We can observe the trends : Palladium is the highest priced metal, followed by gold, platinum and silver although initially gold was priced more than palladium brielfy during the month of august. Prices of silver have not changed much over time but palladium prices seem to rise constantly and gold and platinum see slight ups and downs but largely remain at the same level.
 
 (b) Transform the data so each series begins at 100 and replot. (see Unwin, p. 229)
 ```{r}
@@ -132,7 +133,7 @@ newmetalprices <- melt(newmetalprices, id="date", variable.name="metal", value.n
 newmetalprices %>%
   ggplot(aes(date, y = price, colour = metal, group = metal)) +
   geom_line() +
-  labs(title = "Metal Prices", y = "Price", x = "") + 
+  labs(title = "Transformed Metal Prices for easier comparison", y = "Price", x = "") + 
   theme_tq()
 
 ```
