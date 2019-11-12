@@ -71,6 +71,29 @@ Similar to visualization of missing column values, plot 1 shows the missing valu
 
 Support your conclusions with graphs. 
 
+There seems to be a correlation between the missing values and the month.
+Many values of Ozone are missing in the month of June (6th month). This can be seen in the first graph and second graph.
+```{r}
+gg_miss_fct(x = newdf, fct = Month ) + labs(title = "NA in Air Quality and Ozone") #GRAPH 1
+
+ggplot(airquality, #GRAPH 2
+       aes(x = Ozone,
+           y = Solar.R)) +
+  geom_miss_point() + 
+  facet_wrap(~Month)
+```
+
+There seems to be a weak correlation between missing values of ozone and the temperature. There seem to be missing ozone values for higher temperatures. This can be seen in graphs 3 and 4.
+```{r}
+gg_miss_fct(x = newdf, fct = Temp ) + labs(title = "NA in Air Quality and Ozone") #GRAPH 3
+
+ggplot(airquality, #GRAPH 4
+       aes(x = Ozone,
+           y = Temp)) +
+  geom_miss_point() + 
+  facet_wrap(~Month)
+```
+
 ### 2. Time Series
 
 (a) Use the **tidyquant** package to collect information on anything other than stock prices for which time series data is available. Create a multiple line chart to compare trends over time. Your chart should have at least 3 lines.
@@ -103,7 +126,9 @@ metalprices %>%
 
 (b) Transform the data so each series begins at 100 and replot. (see Unwin, p. 229)
 ```{r}
-newmetalprices <- metalprices[which(metalprices$price > 100),]
+newmetalprices <- lapply(select(price, -date), function(x) 100*x/x[1])
+newmetalprices <- cbind(date = price$date, as.data.frame(newmetalprices))
+newmetalprices <- melt(newmetalprices, id="date", variable.name="metal", value.name="price")
 newmetalprices %>%
   ggplot(aes(date, y = price, colour = metal, group = metal)) +
   geom_line() +
@@ -113,7 +138,9 @@ newmetalprices %>%
 ```
 (c) Compare the graphs in (a) and (b).
 
-Graphs in (a)  and (b) show that value/price of silver has been below 100 throughout the years. The value of palladium saw a rapid increase whereas price of gold increased slowly in the month of Septembder and then started decreasing in a gradual manner from mid Setember to November. The ptice of palladium also increased in September, stayed almost constant till October and then started decreasing. It saw a small rise again in November. We can notice that all three metal saw an increase in price in te month of September.
+
+From August, Palladium has seen a steady growth. Platinum started poorly but quickly grew in price by september.
+Silver grew in rate the fastest but also fell down soon after in price in a month's time. Gold has been all right in it's price growth although it seems to show a slight decreasing trend at times generally.
 
 ### 3. Cause of Death
 
