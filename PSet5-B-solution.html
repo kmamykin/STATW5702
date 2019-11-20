@@ -71,14 +71,16 @@ const mainGroup = svg
   .append('g')
   .attr('transform', 'translate(0, 10)') // move it slightly so that the labels of the axis are not clipped
 
+const yScale = d3.scaleLinear()
+    .domain([-100, 100])
+    .range([plotHeight, 0])
+
 // draw y axis here
-const yAxis = mainGroup
-  .append('rect')
-  .attr('x', 10)
-  .attr('y', 0)
-  .attr('height', plotHeight)
-  .attr('width', 20)
-  .attr('fill', 'lightgreen')
+const yAxis = d3.axisLeft().scale(yScale)
+mainGroup
+  .append("g")
+  .attr('transform', `translate(40, 0)`)
+  .call(yAxis)
 
 // draw target clicking area and handle click events
 const targetArea = mainGroup
@@ -92,10 +94,6 @@ targetArea
 .attr('height', plotHeight)
 .attr('width', 100)
 .attr('fill', '#D1EEF1')
-
-const yScale = d3.scaleLinear()
-    .domain([-100, 100])
-    .range([plotHeight, 0])
 
 const calculateStats = (data) => {
   const sorted = data.sort()
@@ -129,10 +127,11 @@ const updateElements = () => {
   const data = circles.data()
   const stats = calculateStats(data)
   const toString = (d) => d.toString()
+  // update color of the outliers
   circles.attr('fill', (d) => stats.isOutlier(d) ? 'red' : 'black')
-
+  // uddate display of stats
   if (data.length > 0) {
-    // update values of stats
+    // update with calculated dtats
     d3.select('#dataValues').text(data.map(toString).join(', '))
     d3.select('#outliers').text(stats.outliers.map(toString).join(', '))
     d3.select('#upperWhisker').text(toString(stats.upperWhisker))
