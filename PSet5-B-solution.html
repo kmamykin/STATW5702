@@ -3,29 +3,72 @@
   <head>
     <meta charset="utf-8">
     <title>Boxplots</title>
-    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <link href="PSet5-B-solution.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v5.js"></script>
   </head>
 
 	<body>
+		<div id="main">
+      <div id="chartPanel">
+  			<h3>Create a boxplot</h3>
+  			<p>Click in the center of the blue strip to add points.</p>
+        <div id="clickActionChooser">
+          <span>
+            <label>
+              <input type="radio" name="clickAction" value="add" checked>
+              Add points
+            </label>
+          </span>
 
-		<div style="padding: 50px; float:left;">
+          <span>
+            <label>
+              <input type="radio" name="clickAction" value="remove">
+              Remove points
+            </label>
+          </span>
+        </div>
+        <div id="boxplotBox">
+          <div>
+            <svg id="boxplot" width="200px" height="400px" xmlns="http://www.w3.org/2000/svg">
+            </svg>
+          </div>
+        </div>
+  		</div>
+
+  		<div id="statsPanel">
+  			<h3>How to Read a Boxplot</h3>
+  			<div class="statsBox">
+          <div class="stat"><div class="statLabel">Data values:</div><div class="statValues" id="dataValues"></div></div>
+          <div class="stat"><div class="statLabel">Outliers:</div><div class="statValues" id="outliers"></div></div>
+          <div class="stat"><div class="statLabel">Upper whisker:</div><div class="statValues" id="upperWhisker"></div></div>
+          <div class="stat"><div class="statLabel">Q3:</div><div class="statValues" id="q3"></div></div>
+          <div class="stat"><div class="statLabel">Median:</div><div class="statValues" id="median"></div></div>
+          <div class="stat"><div class="statLabel">Q1:</div><div class="statValues" id="q1"></div></div>
+          <div class="stat"><div class="statLabel">Lower whisker:</div><div class="statValues" id="lowerWhister"></div></div>
+        </div>
+  		</div>
 		</div>
 
-		<div id="chart" style="width: 400px; float:left;">
-			<h3>Create a boxplot</h3>
-			<p>Click in the center of the blue strip to add points.</p>
-		</div>
+<script type="text/javascript">
 
-		<div style="width: 400px; float: left;">
-			<h3>How to Read a Boxplot</h3>
-			<p>[add text here]</p> 
-		</div>
-		
-		
-		<script type="text/javascript">
+const svg = d3.select('svg#boxplot')
+  .append('rect')
+  .attr('x', 0)
+  .attr('y', 0)
+  .attr('height', '100%')
+  .attr('width', '100%')
+  .attr('stroke', 'blue')
+  .attr('fill', 'none')
 
-
-		</script>
+// Example how to update values of stats
+d3.select('#dataValues').text('1, 2, 3, 4')
+d3.select('#outliers').text('100')
+d3.select('#upperWhisker').text('3')
+d3.select('#q3').text('4')
+d3.select('#median').text('5')
+d3.select('#q1').text('6')
+d3.select('#lowerWhister').text('7')
+</script>
 
 	</body>
 
