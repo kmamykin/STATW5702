@@ -167,7 +167,7 @@ targetArea
       .datum(value)
   } else {
     const closestValue = calculateClosestValue(targetArea.selectAll('circle').data(), value)
-    targetArea.selectAll('circle').filter((d) => d === closestValue).remove()
+    targetArea.selectAll('circle').filter((d) => d === closestValue).filter((d, i) => i===0).remove()
   }
   updateElements(targetArea.selectAll('circle').data())
 })
