@@ -51,8 +51,14 @@
 
 <script type="text/javascript">
 
+const targetAreaHeight = 380;
+
 const svg = d3.select('svg#boxplot')
-  .append('rect')
+const svgRect = svg.node().getBoundingClientRect()
+const plotHeight = svgRect.height - 20
+
+// this rect to mark the boundaries of the svg
+svg.append('rect')
   .attr('x', 0)
   .attr('y', 0)
   .attr('height', '100%')
@@ -60,14 +66,114 @@ const svg = d3.select('svg#boxplot')
   .attr('stroke', 'blue')
   .attr('fill', 'none')
 
-// Example how to update values of stats
-d3.select('#dataValues').text('1, 2, 3, 4')
-d3.select('#outliers').text('100')
-d3.select('#upperWhisker').text('3')
-d3.select('#q3').text('4')
-d3.select('#median').text('5')
-d3.select('#q1').text('6')
-d3.select('#lowerWhister').text('7')
+// mainGroup contains y axis and the target area with the boxplot
+const mainGroup = svg
+  .append('g')
+  .attr('transform', 'translate(0, 10)') // move it slightly so that the labels of the axis are not clipped
+
+// draw y axis here
+const yAxis = mainGroup
+  .append('rect')
+  .attr('x', 10)
+  .attr('y', 0)
+  .attr('height', plotHeight)
+  .attr('width', 20)
+  .attr('fill', 'lightgreen')
+
+// draw target clicking area and handle click events
+const targetArea = mainGroup
+.append('g')
+.attr('transform', 'translate(60, 0)')
+
+targetArea
+.append('rect')
+.attr('x', 0)
+.attr('y', 0)
+.attr('height', plotHeight)
+.attr('width', 100)
+.attr('fill', '#D1EEF1')
+
+const yScale = d3.scaleLinear()
+    .domain([-100, 100])
+    .range([plotHeight, 0])
+
+const calculateStats = (data) => {
+  const sorted = data.sort()
+  const q1 = d3.quantile(sorted, 0.25)
+  const median = d3.median(sorted)
+  const q3 = d3.quantile(sorted, 0.75)
+  const upperWhisker = q3 + (q3-q1)*1.5;
+  const lowerWhister = q1 - (q3-q1)*1.5
+  const isOutlier = (d) => (d <= lowerWhister) || (d >= upperWhisker)
+  const outliers = sorted.filter(isOutlier)
+  return {
+    data,
+    isOutlier, // this is a function
+    outliers,
+    upperWhisker,
+    q3,
+    median,
+    q1,
+    lowerWhister
+  }
+}
+
+const calculateClosestValue = (data, value) => {
+  return data.reduce((acc, d) => {
+    return Math.abs(value - d) < acc.diff ? {value: d, diff: Math.abs(value - d)} : acc
+  }, {value, diff: 10000}).value
+}
+
+const updateElements = (data) => {
+  console.log(data)
+  const stats = calculateStats(data)
+  const toString = (d) => d.toString()
+  if (data.length > 0) {
+    // update values of stats
+    d3.select('#dataValues').text(data.map(toString).join(', '))
+    d3.select('#outliers').text(stats.outliers.map(toString).join(', '))
+    d3.select('#upperWhisker').text(toString(stats.upperWhisker))
+    d3.select('#q3').text(toString(stats.q3))
+    d3.select('#median').text(toString(stats.median))
+    d3.select('#q1').text(toString(stats.q1))
+    d3.select('#lowerWhister').text(toString(stats.lowerWhister))
+  } else {
+    // No data passed, blank out stats display
+    d3.select('#dataValues').text('')
+    d3.select('#outliers').text('')
+    d3.select('#upperWhisker').text('')
+    d3.select('#q3').text('')
+    d3.select('#median').text('')
+    d3.select('#q1').text('')
+    d3.select('#lowerWhister').text('')
+  }
+}
+
+targetArea
+.append('rect')
+.attr('x', 25)
+.attr('y', 0)
+.attr('height', plotHeight)
+.attr('width', 50)
+.attr('fill', '#BAE3EA')
+.on('click', (d, i, nodes) => {
+  const point = d3.mouse(targetArea.node())
+  const value = Math.round(yScale.invert(point[1]))
+  if (d3.select('input[name="clickAction"]:checked').node().value === 'add') {
+    targetArea.append('circle')
+      .attr('cx', point[0])
+      .attr('cy', point[1])
+      .attr('r', 3)
+      .datum(value)
+  } else {
+    const closestValue = calculateClosestValue(targetArea.selectAll('circle').data(), value)
+    targetArea.selectAll('circle').filter((d) => d === closestValue).remove()
+  }
+  updateElements(targetArea.selectAll('circle').data())
+})
+
+updateElements([])
+
 </script>
 
 	</body>
