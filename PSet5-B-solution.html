@@ -124,10 +124,13 @@ const calculateClosestValue = (data, value) => {
   }, {value, diff: 10000}).value
 }
 
-const updateElements = (data) => {
-  console.log(data)
+const updateElements = () => {
+  const circles = targetArea.selectAll('circle')
+  const data = circles.data()
   const stats = calculateStats(data)
   const toString = (d) => d.toString()
+  circles.attr('fill', (d) => stats.isOutlier(d) ? 'red' : 'black')
+
   if (data.length > 0) {
     // update values of stats
     d3.select('#dataValues').text(data.map(toString).join(', '))
@@ -169,10 +172,10 @@ targetArea
     const closestValue = calculateClosestValue(targetArea.selectAll('circle').data(), value)
     targetArea.selectAll('circle').filter((d) => d === closestValue).filter((d, i) => i===0).remove()
   }
-  updateElements(targetArea.selectAll('circle').data())
+  updateElements()
 })
 
-updateElements([])
+updateElements()
 
 </script>
 
