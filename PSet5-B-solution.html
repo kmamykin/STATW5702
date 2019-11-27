@@ -215,33 +215,44 @@ const calculateClosestValue = (data, value) => {
 function updateElements() {
   const circles = targetArea.selectAll('circle')
   const data = circles.data()
+  // transitions are only needed if have more then 1 point.
+  const transitionDuration = data.length > 1 ? 300 : 0
+
   // uddate display of stats
   if (data.length > 0) {
     const stats = calculateStats(data)
     const toString = (d) => d.toString()
-    targetArea.select('rect#boxplotRect')
+
+    // show boxplot
+    targetArea.selectAll('.boxplot')
+      .attr('visibility', 'visible')
+
+    targetArea.select('rect#boxplotRect').transition().duration(transitionDuration)
       .attr('y', yScale(stats.q3))
       .attr('height', Math.abs(yScale(stats.q1) - yScale(stats.q3)))
 
-    targetArea.select('line#boxplotMedian')
+    targetArea.select('line#boxplotMedian').transition().duration(transitionDuration)
       .attr('y1', yScale(stats.median))
       .attr('y2', yScale(stats.median))
 
-    targetArea.select('line#boxplotUpperWhiskerV')
+    targetArea.select('line#boxplotUpperWhiskerV').transition().duration(transitionDuration)
       .attr('y1', yScale(stats.upperWhisker))
       .attr('y2', yScale(stats.q3))
-    targetArea.select('line#boxplotUpperWhiskerH')
+    targetArea.select('line#boxplotUpperWhiskerH').transition().duration(transitionDuration)
       .attr('y1', yScale(stats.upperWhisker))
       .attr('y2', yScale(stats.upperWhisker))
 
-    targetArea.select('line#boxplotLowerWhiskerV')
+    targetArea.select('line#boxplotLowerWhiskerV').transition().duration(transitionDuration)
       .attr('y1', yScale(stats.q1))
       .attr('y2', yScale(stats.lowerWhisker))
-    targetArea.select('line#boxplotLowerWhiskerH')
+    targetArea.select('line#boxplotLowerWhiskerH').transition().duration(transitionDuration)
       .attr('y1', yScale(stats.lowerWhisker))
       .attr('y2', yScale(stats.lowerWhisker))
+
     // update color of the outliers
-    circles.attr('fill', (d) => stats.isOutlier(d) ? 'red' : 'black')
+    circles.transition().duration(transitionDuration)
+      .attr('fill', (d) => stats.isOutlier(d) ? 'red' : 'black')
+
     // update with calculated dtats
     d3.select('#dataValues').text(stats.data.map(toString).join(', '))
     d3.select('#outliers').text(stats.outliers.map(toString).join(', '))
@@ -251,6 +262,10 @@ function updateElements() {
     d3.select('#q1').text(toString(stats.q1))
     d3.select('#lowerWhisker').text(toString(stats.lowerWhisker))
   } else {
+    // hide boxplot
+    targetArea.selectAll('.boxplot')
+      .attr('visibility', 'hidden')
+
     // No data passed, blank out stats display
     d3.select('#dataValues').text('')
     d3.select('#outliers').text('')
