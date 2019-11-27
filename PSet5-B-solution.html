@@ -37,6 +37,7 @@
 
   		<div id="statsPanel">
   			<h3>How to Read a Boxplot</h3>
+        <p>Boxplot summarized one-dimentional continuous data by focusing a few statistics and outliers. This visualization displays each data point, but usually boxplots only draw the main box, the whiskers, and outliers. The main box of the boxplot covers the distance between 25% and 75% quantiles with a median line inside. Outside of the main box two "whiskers" are displayed designating the boundaries for the outliers. See <a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html#computed-variables" target="_blank">here</a> for a precise definition of whisker boundaries. Any data point outside of the whiskers is considered to be an outlier and is displayed as a dot (or using red color in this visualization).</p>
   			<div class="statsBox">
           <div class="stat"><div class="statLabel">Data values:</div><div class="statValues" id="dataValues"></div></div>
           <div class="stat"><div class="statLabel">Outliers:</div><div class="statValues" id="outliers"></div></div>
@@ -63,7 +64,7 @@ svg.append('rect')
   .attr('y', 0)
   .attr('height', '100%')
   .attr('width', '100%')
-  .attr('stroke', 'blue')
+  .attr('stroke', 'none') // change to blue to see the boundaries
   .attr('fill', 'none')
 
 // mainGroup contains y axis and the target area with the boxplot
