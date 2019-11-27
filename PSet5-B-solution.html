@@ -3,8 +3,52 @@
   <head>
     <meta charset="utf-8">
     <title>Boxplots</title>
-    <link href="PSet5-B-solution.css" rel="stylesheet">
     <script src="https://d3js.org/d3.v5.js"></script>
+    <style>
+    body {
+      font-family: sans-serif;
+      box-sizing: border-box;
+    }
+
+    div#main {
+      display: flex;
+      flex-direction: row;
+      width: 800px;
+      margin: 50px auto;
+    }
+
+    div#chartPanel, div#statsPanel {
+      width: 400px;
+    }
+
+    div#clickActionChooser > span {
+      margin-right: 10px;
+    }
+
+    div#boxplotBox {
+      padding-top: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .statsBox {
+      padding-top: 50px;
+    }
+
+    .stat {
+      display: flex;
+      margin-bottom: 10px;
+    }
+
+    .stat .statLabel {
+      font-weight: bold;
+    }
+
+    .stat .statValues {
+      margin-left: 5px;
+    }
+    </style>
   </head>
 
 	<body>
