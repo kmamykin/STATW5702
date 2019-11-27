@@ -76,7 +76,8 @@ const yScale = d3.scaleLinear()
     .range([plotHeight, 0])
 
 // draw y axis here
-const yAxis = d3.axisLeft().scale(yScale)
+const yAxis = d3.axisLeft().scale(yScale).ticks(5)
+
 mainGroup
   .append("g")
   .attr('transform', `translate(40, 0)`)
